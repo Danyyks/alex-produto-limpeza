@@ -1,5 +1,6 @@
 import { Droplets, Shirt, Sparkles, Package, LucideIcon } from 'lucide-react';
-import type { Category } from '../services/menuService';
+
+export type Category = 'geral' | 'lavanderia' | 'higiene' | 'kits';
 
 export interface CategoryConfig {
   key: Category;
@@ -8,8 +9,8 @@ export interface CategoryConfig {
 }
 
 /**
- * Categorias de produtos exibidas no catálogo e nas abas do admin.
- * Para adicionar uma categoria nova: incluir aqui + no type Category em services/menuService.ts.
+ * Categorias de produtos exibidas no catálogo.
+ * Para adicionar uma categoria nova: incluir aqui + no type Category acima.
  */
 export const CATEGORIES: CategoryConfig[] = [
   { key: 'geral', label: 'Limpeza Geral', icon: Droplets },

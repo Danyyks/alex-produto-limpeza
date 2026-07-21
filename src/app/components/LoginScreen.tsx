@@ -5,10 +5,9 @@ import { BRAND_NAME, BRAND_TEXT } from '../config/brand';
 
 interface LoginScreenProps {
   onLogin: (name: string) => void;
-  logo?: string;
 }
 
-export function LoginScreen({ onLogin, logo }: LoginScreenProps) {
+export function LoginScreen({ onLogin }: LoginScreenProps) {
   const [name, setName] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -33,15 +32,7 @@ export function LoginScreen({ onLogin, logo }: LoginScreenProps) {
             animate={{ rotate: 0, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {logo ? (
-              <img
-                src={logo}
-                alt="Logo"
-                className="w-24 h-24 mx-auto object-contain rounded-2xl"
-              />
-            ) : (
-              <BrandMark className="w-24 h-24 mx-auto" />
-            )}
+            <BrandMark className="w-24 h-24 mx-auto" />
           </motion.div>
           <h1 className="text-3xl font-bold text-foreground mb-1">
             {BRAND_NAME}

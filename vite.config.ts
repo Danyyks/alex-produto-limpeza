@@ -19,4 +19,14 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  server: {
+    // Porta fixa e diferente de 5173 — evita colidir com o PWA "Listinha"
+    // que ficou instalado no Chrome amarrado a localhost:5173.
+    port: 5180,
+    strictPort: true,
+    // Abre automaticamente no navegador do sistema (não no preview do VS Code).
+    // O navegador usado é controlado pela env BROWSER (ver .env).
+    open: true,
+  },
 })

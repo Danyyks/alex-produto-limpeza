@@ -14,23 +14,18 @@ Exceção: o botão de WhatsApp usa verde (`bg-green-500`) de propósito — é 
 
 ## Categorias de produto
 
-Categorias ficam definidas em `src/app/config/categories.ts` (chave, rótulo exibido, ícone) e no `type Category` de `src/app/services/menuService.ts`. Para adicionar uma categoria nova:
+Categorias ficam definidas em `src/app/config/categories.ts` (chave, rótulo exibido, ícone, e o `type Category`). Para adicionar uma categoria nova:
 1. Adicionar a chave no `type Category`.
-2. Adicionar a entrada em `CATEGORIES` (categories.ts) com rótulo e ícone do `lucide-react`.
-3. Atualizar o `check` de `category` em `supabase/schema.sql` para incluir a nova chave.
+2. Adicionar a entrada em `CATEGORIES` com rótulo e ícone do `lucide-react`.
+3. Adicionar a chave nova em `PRODUCTS` (`src/app/data/products.ts`), mesmo que com array vazio.
 
-O restante (seções do catálogo, abas do admin) é gerado automaticamente a partir desse array — não precisa duplicar código em `App.tsx` ou `AdminPanel.tsx`.
+O restante (seções do catálogo) é gerado automaticamente a partir desse array — não precisa duplicar código em `App.tsx`.
 
-## Fluxo de dados
+## Catálogo (estado atual: dados fixos no código)
 
-```
-Supabase (menu_items, site_profile)
-  → services/menuService.ts, profileService.ts (CRUD)
-    → hooks/useMenuData.ts (busca tudo em paralelo, expõe refresh())
-      → App.tsx (estado do carrinho/login) e admin/AdminPanel.tsx (CRUD via UI)
-```
+Não há banco de dados neste momento. Os produtos ficam em `src/app/data/products.ts`, servidos pelo hook `src/app/hooks/useMenuData.ts`. Para adicionar, editar ou remover um produto, editar esse arquivo diretamente e rodar `pnpm build` para conferir.
 
-O RLS do Supabase já filtra itens inativos para visitantes anônimos; o frontend filtra de novo por segurança (`item.active`).
+**Plano futuro**: migrar para Firebase (Firestore para os produtos, Auth para login do admin, Storage para upload de imagens) e trazer de volta um painel de administração via navegador. Quando isso acontecer, `useMenuData.ts` é o único lugar que precisa trocar a fonte dos dados — o resto do app (App.tsx, ProductCard, etc.) não depende de como os dados chegam.
 
 ## Checkout / WhatsApp
 
@@ -38,8 +33,8 @@ A mensagem é montada em `App.tsx` (`handleCheckout`), com nome do cliente, ende
 
 ## Tipos compartilhados
 
-`MenuItem` e `SiteProfile` ficam em `src/app/types/menu.ts`. São usados pelos services, pelo hook `useMenuData` e pelo `AdminPanel`.
+`MenuItem` fica em `src/app/types/menu.ts`. É usado pelo hook `useMenuData`, pelos dados estáticos em `products.ts` e pelo `ProductCard`.
 
-## Banco de dados
+## Deploy
 
-Não há CLI/migrations do Supabase neste projeto — `supabase/schema.sql` e `supabase/seed.sql` rodam manualmente no SQL Editor. Se alterar a estrutura do banco (nova coluna, nova tabela), atualizar o `schema.sql` também, para o arquivo continuar sendo a fonte de verdade reproduzível.
+O projeto está pronto para deploy na Vercel (`vercel.json` já configurado: build via `pnpm run build`, saída em `dist/`, rewrite de SPA). Não depende de nenhuma variável de ambiente além de `VITE_WHATSAPP_NUMBER` no momento.

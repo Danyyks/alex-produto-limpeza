@@ -1,20 +1,18 @@
 import { useState } from 'react';
-import { ShoppingCart, Loader2 } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LoginScreen } from './components/LoginScreen';
 import { ProductCard } from './components/ProductCard';
 import { AddItemModal } from './components/AddItemModal';
 import { CartDrawer, CartItem } from './components/CartDrawer';
-import { AdminLogin } from './components/admin/AdminLogin';
-import { AdminPanel } from './components/admin/AdminPanel';
 import { BrandMark } from './components/BrandMark';
 import { useMenuData } from './hooks/useMenuData';
 import { BRAND_NAME, BRAND_TEXT } from './config/brand';
 import { CATEGORIES } from './config/categories';
 
 export default function App() {
-  // ── Catálogo e perfil vindos do Supabase ────────────────────
-  const { itemsByCategory, profile, loading, error, refresh } = useMenuData();
+  // ── Catálogo (dados fixos por enquanto, ver hooks/useMenuData.ts) ──
+  const { itemsByCategory } = useMenuData();
 
   // ── Estado do cliente ───────────────────────────────────────
   const [userName, setUserName] = useState<string>('');
@@ -27,10 +25,6 @@ export default function App() {
     name: string;
     price: number;
   }>({ isOpen: false, id: '', name: '', price: 0 });
-
-  // ── Estado do admin ─────────────────────────────────────────
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   // ── Handlers do cliente ─────────────────────────────────────
   const handleLogin = (name: string) => {
@@ -107,63 +101,9 @@ export default function App() {
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // ── Tela de carregamento inicial ────────────────────────────
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground text-sm">Carregando catálogo...</p>
-      </div>
-    );
-  }
-
-  // ── Tela de erro (Supabase não configurado ou offline) ──────
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4 px-6 text-center">
-        <p className="text-destructive font-medium">Erro ao conectar ao banco de dados</p>
-        <p className="text-muted-foreground text-sm max-w-sm">{error}</p>
-        <button
-          onClick={refresh}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm hover:bg-primary/90"
-        >
-          Tentar novamente
-        </button>
-      </div>
-    );
-  }
-
   // ── Tela de login do cliente ────────────────────────────────
   if (!isLoggedIn) {
-    return (
-      <>
-        <LoginScreen onLogin={handleLogin} logo={profile.logo} />
-        {/* Botão admin discreto sobreposto à tela de login */}
-        <button
-          onClick={() => setShowAdminLogin(true)}
-          className="fixed bottom-3 right-3 text-[10px] text-white/30 hover:text-white/60 transition-colors z-50 select-none"
-          aria-label="Acesso admin"
-        >
-          admin
-        </button>
-        <AdminLogin
-          isOpen={showAdminLogin}
-          onClose={() => setShowAdminLogin(false)}
-          onLogin={() => {
-            setShowAdminLogin(false);
-            setIsAdminLoggedIn(true);
-          }}
-        />
-        {isAdminLoggedIn && (
-          <AdminPanel
-            onLogout={() => {
-              setIsAdminLoggedIn(false);
-              refresh(); // Recarrega o catálogo após o admin fazer alterações
-            }}
-          />
-        )}
-      </>
-    );
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   // ── Site principal (cliente logado) ─────────────────────────
@@ -173,15 +113,7 @@ export default function App() {
       <header className="bg-card shadow-sm sticky top-0 z-30 border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            {profile.logo ? (
-              <img
-                src={profile.logo}
-                alt="Logo"
-                className="w-10 h-10 md:w-14 md:h-14 object-contain shrink-0 rounded-xl"
-              />
-            ) : (
-              <BrandMark className="w-10 h-10 md:w-14 md:h-14 shrink-0" />
-            )}
+            <BrandMark className="w-10 h-10 md:w-14 md:h-14 shrink-0" />
             <div className="min-w-0">
               <h1 className="text-xl md:text-2xl text-primary mb-0.5">
                 {BRAND_NAME}
@@ -272,22 +204,9 @@ export default function App() {
       <footer className="bg-gray-900 text-white py-8 mt-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-gray-400">{BRAND_TEXT.footerCopyright}</p>
-          <div className="flex items-center justify-center gap-3 mt-3">
-            <span className="text-gray-500 text-sm">Desenvolvido por:</span>
-            <img
-              src="/khode-logo.svg"
-              alt="Khode Systems"
-              className="h-8 opacity-70"
-            />
-          </div>
-          {/* Acesso admin — discreto, invisível para clientes comuns */}
-          <button
-            onClick={() => setShowAdminLogin(true)}
-            className="mt-4 text-[10px] text-gray-700 hover:text-gray-500 transition-colors select-none"
-            aria-label="Acesso restrito"
-          >
-            admin
-          </button>
+          <p className="text-gray-500 text-sm mt-3">
+            Desenvolvido por: Dany Jonathan Bueno
+          </p>
         </div>
       </footer>
 
@@ -308,25 +227,6 @@ export default function App() {
         onRemoveItem={handleRemoveItem}
         onCheckout={handleCheckout}
       />
-
-      {/* ── Admin ── */}
-      <AdminLogin
-        isOpen={showAdminLogin}
-        onClose={() => setShowAdminLogin(false)}
-        onLogin={() => {
-          setShowAdminLogin(false);
-          setIsAdminLoggedIn(true);
-        }}
-      />
-
-      {isAdminLoggedIn && (
-        <AdminPanel
-          onLogout={() => {
-            setIsAdminLoggedIn(false);
-            refresh(); // Recarrega o catálogo após o admin salvar alterações
-          }}
-        />
-      )}
     </div>
   );
 }

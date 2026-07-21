@@ -4,7 +4,6 @@ interface BrandMarkProps {
 
 /**
  * Logomark padrão da marca: gota estilizada em gradiente roxo → teal.
- * Usado como fallback quando o admin ainda não subiu uma logo própria.
  */
 export function BrandMark({ className = 'w-12 h-12' }: BrandMarkProps) {
   return (

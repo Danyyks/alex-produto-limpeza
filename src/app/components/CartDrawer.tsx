@@ -160,9 +160,6 @@ export function CartDrawer({
                     className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground text-center">
-                  <span className="font-semibold text-primary">OBS:</span> A taxa de entrega será informada pelo WhatsApp após a finalização do pedido.
-                </p>
                 <motion.button
                   onClick={() => onCheckout(address)}
                   disabled={!address.trim()}

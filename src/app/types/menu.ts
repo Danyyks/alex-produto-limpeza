@@ -6,7 +6,3 @@ export interface MenuItem {
   image?: string;
   active: boolean;
 }
-
-export interface SiteProfile {
-  logo: string;
-}
