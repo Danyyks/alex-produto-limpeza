@@ -1,0 +1,92 @@
+import { useState } from 'react';
+import { motion } from 'motion/react';
+import { BrandMark } from './BrandMark';
+import { BRAND_NAME, BRAND_TEXT } from '../config/brand';
+
+interface LoginScreenProps {
+  onLogin: (name: string) => void;
+  logo?: string;
+}
+
+export function LoginScreen({ onLogin, logo }: LoginScreenProps) {
+  const [name, setName] = useState('');
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (name.trim()) {
+      onLogin(name.trim());
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-card rounded-3xl shadow-2xl p-8 md:p-12 w-full max-w-md"
+      >
+        <div className="text-center mb-8">
+          <motion.div
+            className="mx-auto mb-6"
+            initial={{ rotate: -10, scale: 0.9 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            {logo ? (
+              <img
+                src={logo}
+                alt="Logo"
+                className="w-24 h-24 mx-auto object-contain rounded-2xl"
+              />
+            ) : (
+              <BrandMark className="w-24 h-24 mx-auto" />
+            )}
+          </motion.div>
+          <h1 className="text-3xl font-bold text-foreground mb-1">
+            {BRAND_NAME}
+          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-wide mb-3">
+            Produtos de Limpeza
+          </p>
+          <p className="text-muted-foreground">{BRAND_TEXT.loginWelcome}</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-foreground mb-2"
+            >
+              Qual é o seu nome?
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Digite seu nome..."
+              autoFocus
+              autoComplete="new-password"
+              className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
+              required
+            />
+          </div>
+
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white py-4 rounded-xl text-lg font-semibold shadow-lg transition-opacity duration-200"
+          >
+            Entrar na Loja
+          </motion.button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-muted-foreground">{BRAND_TEXT.loginTagline}</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
