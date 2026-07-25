@@ -100,7 +100,7 @@ export default function App() {
     message += `\n*Total: R$ ${total.toFixed(2)}*`;
 
     const whatsappUrl = `https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    window.location.href = whatsappUrl;
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
