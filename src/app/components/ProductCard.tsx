@@ -14,7 +14,7 @@ export function ProductCard({ name, description, price, image, onAdd }: ProductC
     <motion.div
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
-      className="bg-card rounded-2xl shadow-md overflow-hidden border border-border hover:shadow-xl transition-shadow duration-300"
+      className="bg-card rounded-2xl shadow-md overflow-hidden border border-border hover:shadow-xl hover:ring-1 hover:ring-primary/20 transition-shadow duration-300"
     >
       {image ? (
         <div className="relative h-40 sm:h-44 md:h-48 overflow-hidden bg-muted">
@@ -38,7 +38,7 @@ export function ProductCard({ name, description, price, image, onAdd }: ProductC
           </span>
           <button
             onClick={onAdd}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-4 md:px-6 py-2.5 transition-colors duration-200 flex items-center gap-1.5 shadow-md hover:shadow-lg text-sm md:text-base shrink-0"
+            className="bg-primary hover:bg-primary/90 active:scale-95 text-primary-foreground rounded-full px-4 md:px-6 py-2.5 transition-all duration-200 flex items-center gap-1.5 shadow-md hover:shadow-lg text-sm md:text-base shrink-0"
           >
             <Plus className="w-4 h-4 md:w-5 md:h-5" />
             Adicionar

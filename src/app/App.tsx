@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Sun, Moon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LoginScreen } from './components/LoginScreen';
 import { ProductCard } from './components/ProductCard';
@@ -7,12 +7,16 @@ import { AddItemModal } from './components/AddItemModal';
 import { CartDrawer, CartItem } from './components/CartDrawer';
 import { BrandMark } from './components/BrandMark';
 import { useMenuData } from './hooks/useMenuData';
+import { useTheme } from './hooks/useTheme';
 import { BRAND_NAME, BRAND_TEXT } from './config/brand';
 import { CATEGORIES } from './config/categories';
 
 export default function App() {
   // ── Catálogo (dados fixos por enquanto, ver hooks/useMenuData.ts) ──
   const { itemsByCategory } = useMenuData();
+
+  // ── Tema claro/escuro ────────────────────────────────────────
+  const { theme, toggleTheme } = useTheme();
 
   // ── Estado do cliente ───────────────────────────────────────
   const [userName, setUserName] = useState<string>('');
@@ -110,7 +114,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card shadow-sm sticky top-0 z-30 border-b border-border">
+      <header className="bg-card/95 backdrop-blur-sm shadow-sm sticky top-0 z-30 border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <BrandMark className="w-10 h-10 md:w-14 md:h-14 shrink-0" />
@@ -123,27 +127,36 @@ export default function App() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setIsCartOpen(true)}
-            aria-label={`Abrir carrinho${totalItems > 0 ? `, ${totalItems} ${totalItems === 1 ? 'item' : 'itens'}` : ''}`}
-            className="relative bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-3 transition-colors duration-200 shadow-md hover:shadow-lg"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            {totalItems > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
-              >
-                {totalItems}
-              </motion.span>
-            )}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              className="rounded-full p-3 text-foreground hover:bg-muted transition-colors duration-200"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              aria-label={`Abrir carrinho${totalItems > 0 ? `, ${totalItems} ${totalItems === 1 ? 'item' : 'itens'}` : ''}`}
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-3 transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {totalItems > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+                >
+                  {totalItems}
+                </motion.span>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-accent text-white py-8 md:py-12 px-4">
+      <section className="bg-gradient-to-r from-primary to-accent text-white py-10 md:py-16 px-4 rounded-b-3xl">
         <div className="max-w-6xl mx-auto text-center">
           <motion.h2
             initial={{ opacity: 0, y: -20 }}
@@ -201,10 +214,10 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-16">
+      <footer className="bg-card border-t border-border py-10 mt-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-gray-400">{BRAND_TEXT.footerCopyright}</p>
-          <p className="text-gray-500 text-sm mt-3">
+          <p className="text-muted-foreground">{BRAND_TEXT.footerCopyright}</p>
+          <p className="text-muted-foreground/70 text-sm mt-3">
             Desenvolvido por: Dany Jonathan Bueno
           </p>
         </div>
