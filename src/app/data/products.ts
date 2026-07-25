@@ -108,6 +108,14 @@ export const PRODUCTS: Record<Category, MenuItem[]> = {
       image: unsplash('photo-1587937533577-0ba337fbd436'),
       active: true,
     },
+    {
+      id: 'hig-5',
+      name: 'Álcool Gel 70%',
+      description: 'Higienização prática das mãos e superfícies, em gel spray.',
+      price: 10.0,
+      image: '/products/alcool-gel-70.jpeg',
+      active: true,
+    },
   ],
   kits: [
     {
