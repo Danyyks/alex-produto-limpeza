@@ -84,6 +84,14 @@ export default function App() {
   };
 
   const handleCheckout = (address: string) => {
+    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER;
+    if (!whatsappNumber) {
+      alert(
+        'Número de WhatsApp da loja não está configurado neste ambiente. Avise o responsável pelo site.',
+      );
+      return;
+    }
+
     const total = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
@@ -99,7 +107,7 @@ export default function App() {
 
     message += `\n*Total: R$ ${total.toFixed(2)}*`;
 
-    const whatsappUrl = `https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.location.href = whatsappUrl;
   };
 
