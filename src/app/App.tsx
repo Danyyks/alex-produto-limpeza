@@ -89,7 +89,7 @@ export default function App() {
       0,
     );
 
-    let message = `Olá! Meu nome é *${userName}* e gostaria de fazer o seguinte pedido:\n\n📍 *Endereço de entrega:* ${address}\n\n`;
+    let message = `Olá! Meu nome é *${userName}* e gostaria de fazer o seguinte pedido:\n\n*Endereço de entrega:* ${address}\n\n`;
 
     cartItems.forEach((item) => {
       message += `• ${item.name} (${item.quantity}x)`;
