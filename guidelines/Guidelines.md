@@ -29,7 +29,9 @@ Não há banco de dados neste momento. Os produtos ficam em `src/app/data/produc
 
 ## Checkout / WhatsApp
 
-A mensagem é montada em `App.tsx` (`handleCheckout`), com nome do cliente, endereço, itens e total, e aberta via `https://wa.me/<número>?text=...`. O número vem de `VITE_WHATSAPP_NUMBER` no `.env` — nunca hardcoded no código.
+A mensagem é montada em `App.tsx` (`handleCheckout`), com nome do cliente, endereço, itens e total, e aberta via `window.location.href = "https://wa.me/<número>?text=..."`. O número vem de `VITE_WHATSAPP_NUMBER` no `.env`/na Vercel — nunca hardcoded no código. `handleCheckout` valida que o número existe antes de montar o link (mostra um alerta se faltar, em vez de abrir um `wa.me/undefined`).
+
+Dois cuidados específicos, aprendidos com bugs reais em produção: usar sempre `window.location.href` (não `window.open`) — um PWA instalado em modo standalone não sabe abrir "nova aba", e o Android recusa o link; e evitar emojis fora do plano básico do Unicode (ex. 📍) na mensagem — o redirecionamento do próprio `wa.me` os corrompe. Detalhes em [SDD.md](../SDD.md#incidentes-conhecidos-2026-07-25).
 
 ## Tipos compartilhados
 

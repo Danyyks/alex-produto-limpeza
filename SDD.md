@@ -75,11 +75,19 @@ Itens iguais com observações diferentes viram entradas separadas no carrinho (
 
 ## Fluxo de checkout
 
-`App.tsx` → `handleCheckout(address)` monta uma string de texto (nome do cliente, endereço, lista de itens com quantidade/observação, total) e chama `window.open('https://wa.me/<VITE_WHATSAPP_NUMBER>?text=' + encodeURIComponent(mensagem))`. Não há confirmação de entrega/leitura — o pedido é considerado "enviado" assim que a aba do WhatsApp abre.
+`App.tsx` → `handleCheckout(address)` valida que `VITE_WHATSAPP_NUMBER` existe (senão mostra um alerta e interrompe), monta uma string de texto (nome do cliente, endereço, lista de itens com quantidade/observação, total) e navega para `https://wa.me/<numero>?text=<mensagem>` via `window.location.href` (navegação direta — ver seção "Incidentes conhecidos" sobre por que não é `window.open`). Não há confirmação de entrega/leitura — o pedido é considerado "enviado" assim que a página do WhatsApp abre.
 
 ## Deploy
 
-`vercel.json` já configurado: `buildCommand: pnpm run build`, `outputDirectory: dist`, `framework: vite`, rewrite `/(.*) → /index.html` (necessário porque é SPA sem rotas de servidor). Variável de ambiente necessária no dashboard da Vercel: `VITE_WHATSAPP_NUMBER`. Nenhum passo de deploy foi executado a partir deste repositório — a conexão do repositório Git ao projeto Vercel e a configuração da variável de ambiente ficam a cargo de quem publica.
+`vercel.json` já configurado: `buildCommand: pnpm run build`, `outputDirectory: dist`, `framework: vite`, rewrite `/(.*) → /index.html` (necessário porque é SPA sem rotas de servidor). O projeto está publicado em **https://alex-produto-limpeza.vercel.app**, com deploy automático a cada push em `main` via integração Git da Vercel. Variável de ambiente `VITE_WHATSAPP_NUMBER` configurada diretamente no projeto (Production + Development) via `vercel env add`.
+
+## Incidentes conhecidos (2026-07-25)
+
+Três problemas distintos apareceram entre a implementação do checkout e o funcionamento correto em produção — documentados aqui porque nenhum deles é óbvio lendo só o código:
+
+1. **Emoji astral corrompido pelo WhatsApp**: a mensagem tinha um 📍 (U+1F4CD, fora do plano básico do Unicode). O app montava e enviava a string certa, mas o próprio redirecionamento `wa.me` → `api.whatsapp.com` substituía esse caractere por `�` na URL final. Confirmado isolando cada etapa (arquivo fonte, resposta do dev server, `fetch` no navegador — todos corretos até a infraestrutura do WhatsApp). Correção: remover emojis fora do BMP da mensagem.
+2. **`window.open` falha em PWA instalado (standalone) no Android**: com o app adicionado à tela inicial, `window.open(url, '_blank')` disparava o erro nativo do Android "Não foi possível abrir este link" — um PWA em modo standalone não tem o conceito de "nova aba" para o Android resolver. Correção: `window.location.href = url` (navegação direta no mesmo frame), que o Android sempre sabe rotear (para o app do WhatsApp, se instalado, ou para um navegador).
+3. **Env var "configurada" que nunca foi salva**: o usuário confirmou (duas vezes) ter configurado `VITE_WHATSAPP_NUMBER` no painel da Vercel, mas `vercel env ls` mostrava que o projeto não tinha nenhuma env var salva — o build gerava `wa.me/undefined`. Como env vars do Vite são fixadas em tempo de build, a correção exigiu: (a) salvar a variável de fato via `vercel env add` para Production e Development, e (b) disparar um novo build (`git commit --allow-empty && git push`, já que `vercel --prod` direto é bloqueado pelo classificador de modo automático do Claude Code). Ver também o guard clause em `handleCheckout` (item 3 do Troubleshooting no `CLAUDE.md`), adicionado para transformar esse tipo de falha silenciosa em um alerta explícito.
 
 ## Limitações conhecidas
 

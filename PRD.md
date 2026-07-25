@@ -45,6 +45,6 @@ Lojas de produtos de limpeza de bairro costumam receber pedidos manualmente pelo
 
 ## Roadmap
 
-- **Curto prazo**: substituir fotos de exemplo (Unsplash) pelas fotos reais dos produtos da loja.
+- **Curto prazo** (em andamento): substituir fotos de exemplo (Unsplash) pelas fotos reais dos produtos da loja — fotos próprias entram em `public/products/` e são referenciadas em `products.ts` (ex: Álcool Gel 70%).
 - **Médio prazo**: integrar **Firebase** — Firestore para catálogo dinâmico (parar de editar `products.ts` no código), Auth para login do lojista, Storage para upload de imagens dos produtos.
 - **Médio/longo prazo**: trazer de volta um **painel de administração** simples (CRUD de produtos, ativar/desativar itens) uma vez que o Firebase estiver integrado.
