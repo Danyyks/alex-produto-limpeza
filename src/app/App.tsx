@@ -248,9 +248,6 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <ContactSection />
           <p className="text-muted-foreground mt-8">{BRAND_TEXT.footerCopyright}</p>
-          <p className="text-muted-foreground/70 text-sm mt-3">
-            Desenvolvido por: Dany Jonathan Bueno
-          </p>
         </div>
       </footer>
 
