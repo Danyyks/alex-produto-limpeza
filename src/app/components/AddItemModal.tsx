@@ -1,6 +1,7 @@
 import { X, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Button } from './Button';
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -51,12 +52,14 @@ export function AddItemModal({
           >
             <div className="flex items-center justify-between mb-6">
               <h3>Adicionar ao pedido</h3>
-              <button
+              <Button
+                variant="tertiary"
+                size="icon-sm"
                 onClick={handleClose}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Fechar"
               >
                 <X className="w-6 h-6" />
-              </button>
+              </Button>
             </div>
 
             <div className="mb-6">
@@ -69,22 +72,26 @@ export function AddItemModal({
             <div className="mb-6">
               <label className="block mb-2 text-foreground">Quantidade</label>
               <div className="flex items-center gap-4">
-                <button
+                <Button
+                  variant="secondary"
+                  size="icon-sm"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
-                  className="bg-muted hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed rounded-full p-2 transition-colors"
+                  aria-label="Diminuir quantidade"
                 >
                   <Minus className="w-5 h-5" />
-                </button>
+                </Button>
                 <span className="text-2xl font-semibold min-w-[3ch] text-center">
                   {quantity}
                 </span>
-                <button
+                <Button
+                  variant="secondary"
+                  size="icon-sm"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="bg-muted hover:bg-secondary rounded-full p-2 transition-colors"
+                  aria-label="Aumentar quantidade"
                 >
                   <Plus className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -109,13 +116,9 @@ export function AddItemModal({
               </span>
             </div>
 
-            <motion.button
-              onClick={handleConfirm}
-              whileTap={{ scale: 0.97 }}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl transition-colors duration-200 shadow-md hover:shadow-lg"
-            >
+            <Button variant="primary" onClick={handleConfirm} className="w-full">
               Adicionar ao carrinho
-            </motion.button>
+            </Button>
           </motion.div>
         </>
       )}

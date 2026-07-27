@@ -6,9 +6,19 @@ import { ProductCard } from './components/ProductCard';
 import { AddItemModal } from './components/AddItemModal';
 import { CartDrawer, CartItem } from './components/CartDrawer';
 import { BrandMark } from './components/BrandMark';
+import { ContactSection } from './components/ContactSection';
+import { CategoryChips } from './components/CategoryChips';
+import { Button } from './components/Button';
 import { useMenuData } from './hooks/useMenuData';
 import { useTheme } from './hooks/useTheme';
-import { BRAND_NAME, BRAND_TEXT } from './config/brand';
+import {
+  BRAND_BANNER_SRC,
+  BRAND_CONTACT,
+  BRAND_NAME,
+  BRAND_SUBTITLE,
+  BRAND_TEXT,
+  buildWhatsappLink,
+} from './config/brand';
 import { CATEGORIES } from './config/categories';
 
 export default function App() {
@@ -84,8 +94,7 @@ export default function App() {
   };
 
   const handleCheckout = (address: string) => {
-    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER;
-    if (!whatsappNumber) {
+    if (!BRAND_CONTACT.whatsappNumber) {
       alert(
         'Número de WhatsApp da loja não está configurado neste ambiente. Avise o responsável pelo site.',
       );
@@ -107,8 +116,7 @@ export default function App() {
 
     message += `\n*Total: R$ ${total.toFixed(2)}*`;
 
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.location.href = whatsappUrl;
+    window.location.href = buildWhatsappLink(message);
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -117,6 +125,10 @@ export default function App() {
   if (!isLoggedIn) {
     return <LoginScreen onLogin={handleLogin} />;
   }
+
+  const visibleCategories = CATEGORIES.filter(
+    (c) => itemsByCategory[c.key].filter((item) => item.active).length > 0,
+  );
 
   // ── Site principal (cliente logado) ─────────────────────────
   return (
@@ -127,76 +139,86 @@ export default function App() {
           <div className="flex items-center gap-3 min-w-0">
             <BrandMark className="w-10 h-10 md:w-14 md:h-14 shrink-0" />
             <div className="min-w-0">
-              <h1 className="text-xl md:text-2xl text-primary mb-0.5">
+              <h1 className="text-xl md:text-2xl font-semibold text-primary leading-tight truncate">
                 {BRAND_NAME}
               </h1>
-              <p className="text-xs md:text-sm text-muted-foreground truncate">
-                {BRAND_TEXT.userGreeting(userName)}
+              <p className="text-xs md:text-sm font-medium uppercase tracking-wide text-muted-foreground truncate">
+                {BRAND_SUBTITLE}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
+            <Button
+              variant="tertiary"
+              size="icon"
               onClick={toggleTheme}
               aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-              className="rounded-full p-3 text-foreground hover:bg-muted transition-colors duration-200"
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="icon"
               onClick={() => setIsCartOpen(true)}
               aria-label={`Abrir carrinho${totalItems > 0 ? `, ${totalItems} ${totalItems === 1 ? 'item' : 'itens'}` : ''}`}
-              className="relative bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-3 transition-colors duration-200 shadow-md hover:shadow-lg"
+              className="relative"
             >
               <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-semibold rounded-full w-6 h-6 flex items-center justify-center"
                 >
                   {totalItems}
                 </motion.span>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-accent text-white py-10 md:py-16 px-4 rounded-b-3xl">
-        <div className="max-w-6xl mx-auto text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-3 md:mb-4 text-white text-xl md:text-2xl"
-          >
-            {BRAND_TEXT.heroTitle}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-sm md:text-lg leading-relaxed max-w-3xl mx-auto text-white/90"
-          >
-            {BRAND_TEXT.heroSubtitle}
-          </motion.p>
-        </div>
+      <section className="max-w-6xl mx-auto px-4 pt-4 md:pt-6">
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center bg-card border border-border rounded-3xl shadow-xl overflow-hidden p-6 md:p-10"
+        >
+          <div className="w-full max-w-xs sm:max-w-sm rounded-2xl overflow-hidden aspect-[6/5] shadow-md">
+            <img
+              src={BRAND_BANNER_SRC}
+              alt="Produtos de limpeza RB Clean"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: 'right center' }}
+            />
+          </div>
+          <div className="mt-6 text-center max-w-2xl">
+            <h2 className="text-2xl md:text-4xl font-semibold text-foreground leading-tight">
+              {BRAND_TEXT.heroHeadline}
+            </h2>
+            <p className="mt-3 text-muted-foreground md:text-lg">
+              {BRAND_TEXT.heroSubtitle}
+            </p>
+          </div>
+        </motion.div>
       </section>
 
+      <CategoryChips categories={visibleCategories} />
+
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {CATEGORIES.map(({ key, label, icon: Icon }, index) => {
+        {visibleCategories.map(({ key, label, icon: Icon }, index) => {
           const items = itemsByCategory[key].filter((item) => item.active);
-          if (items.length === 0) return null;
 
           return (
             <motion.section
               key={key}
+              id={`category-${key}`}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="mb-12"
+              className="mb-12 scroll-mt-[140px] md:scroll-mt-[160px]"
             >
               <div className="flex items-center gap-3 mb-6">
                 <div className="bg-primary rounded-full p-2">
@@ -224,7 +246,8 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-10 mt-16">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-muted-foreground">{BRAND_TEXT.footerCopyright}</p>
+          <ContactSection />
+          <p className="text-muted-foreground mt-8">{BRAND_TEXT.footerCopyright}</p>
           <p className="text-muted-foreground/70 text-sm mt-3">
             Desenvolvido por: Dany Jonathan Bueno
           </p>

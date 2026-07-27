@@ -12,10 +12,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'Alex — Produtos de Limpeza',
-        short_name: 'Alex Limpeza',
+        name: 'RB Clean — Limpeza & Higiene',
+        short_name: 'RB Clean',
         description: 'Catálogo online de produtos de limpeza. Monte seu pedido e envie direto pelo WhatsApp.',
         theme_color: '#6d28d9',
         background_color: '#f8f7fc',
@@ -31,7 +31,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,ico,woff2}'],
       },
     }),
   ],

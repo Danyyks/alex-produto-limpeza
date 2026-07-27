@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { BrandMark } from './BrandMark';
-import { BRAND_NAME, BRAND_TEXT } from '../config/brand';
+import { Button } from './Button';
+import { BRAND_NAME, BRAND_SUBTITLE, BRAND_TEXT } from '../config/brand';
 
 interface LoginScreenProps {
   onLogin: (name: string) => void;
@@ -34,11 +35,9 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
           >
             <BrandMark className="w-24 h-24 mx-auto" />
           </motion.div>
-          <h1 className="text-3xl font-bold text-foreground mb-1">
-            {BRAND_NAME}
-          </h1>
+          <h1 className="text-3xl font-semibold mb-1">{BRAND_NAME}</h1>
           <p className="text-sm text-muted-foreground uppercase tracking-wide mb-3">
-            Produtos de Limpeza
+            {BRAND_SUBTITLE}
           </p>
           <p className="text-muted-foreground">{BRAND_TEXT.loginWelcome}</p>
         </div>
@@ -64,14 +63,13 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
             />
           </div>
 
-          <motion.button
+          <Button
             type="submit"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white py-4 rounded-xl text-lg font-semibold shadow-lg transition-opacity duration-200"
+            variant="hero"
+            className="w-full text-lg"
           >
             Entrar na Loja
-          </motion.button>
+          </Button>
         </form>
 
         <div className="mt-6 text-center">

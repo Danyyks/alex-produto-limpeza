@@ -2,29 +2,29 @@
 
 :root {
   --font-size: 16px;
-  --background: #f8f7fc;
+  --background: #f7f9fd;
   --foreground: #111827;
   --card: #ffffff;
   --card-foreground: #111827;
   --popover: #ffffff;
   --popover-foreground: #111827;
-  --primary: #6d28d9;
+  --primary: #4a63d6;
   --primary-foreground: #ffffff;
-  --secondary: #ece9f7;
+  --secondary: #eef2fc;
   --secondary-foreground: #111827;
-  --muted: #f0eef9;
+  --muted: #f0f4fc;
   --muted-foreground: #6b7280;
-  --accent: #14b8a6;
+  --accent: #0ea5e9;
   --accent-foreground: #ffffff;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
+  --border: #e2e8f5;
   --input: transparent;
-  --input-background: #f3f3f7;
+  --input-background: #f3f5fa;
   --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #6d28d9;
+  --ring: #4a63d6;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -33,7 +33,7 @@
   --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #6d28d9;
+  --sidebar-primary: #4a63d6;
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -42,25 +42,25 @@
 }
 
 .dark {
-  --background: #17141f;
-  --foreground: #f4f3f8;
-  --card: #1e1a29;
-  --card-foreground: #f4f3f8;
-  --popover: #1e1a29;
-  --popover-foreground: #f4f3f8;
-  --primary: #a78bfa;
-  --primary-foreground: #17141f;
-  --secondary: #2a2438;
-  --secondary-foreground: #f4f3f8;
-  --muted: #2a2438;
-  --muted-foreground: #a29fb3;
-  --accent: #2dd4bf;
-  --accent-foreground: #17141f;
+  --background: #0f1420;
+  --foreground: #eef2fc;
+  --card: #171e30;
+  --card-foreground: #eef2fc;
+  --popover: #171e30;
+  --popover-foreground: #eef2fc;
+  --primary: #7c93f0;
+  --primary-foreground: #0f1420;
+  --secondary: #1f2740;
+  --secondary-foreground: #eef2fc;
+  --muted: #1f2740;
+  --muted-foreground: #97a3c4;
+  --accent: #38bdf8;
+  --accent-foreground: #0f1420;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: #322c42;
-  --input: #322c42;
-  --ring: #a78bfa;
+  --border: #2a3352;
+  --input: #2a3352;
+  --ring: #7c93f0;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);
@@ -68,14 +68,14 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: #1e1a29;
+  --sidebar: #171e30;
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: #a78bfa;
-  --sidebar-primary-foreground: #17141f;
-  --sidebar-accent: #2a2438;
+  --sidebar-primary: #7c93f0;
+  --sidebar-primary-foreground: #0f1420;
+  --sidebar-accent: #1f2740;
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: #322c42;
-  --sidebar-ring: #a78bfa;
+  --sidebar-border: #2a3352;
+  --sidebar-ring: #7c93f0;
 }
 
 @theme inline {
@@ -119,6 +119,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -126,7 +137,9 @@
 
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
+    /* "clip", não "hidden": overflow-x:hidden faz do body um scroll container,
+    o que quebra position:sticky de qualquer descendente (ex.: header, chips). */
+    overflow-x: clip;
   }
 
   /**
@@ -136,7 +149,20 @@
 
   html {
     font-size: var(--font-size);
-    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  /* Foco é mobile: esconde a barra de rolagem vertical do navegador
+  (o scroll continua funcionando normalmente, só a barra visual some). */
+  html,
+  body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
   }
 
   h1 {
