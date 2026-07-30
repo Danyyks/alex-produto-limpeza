@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { LogOut, ShoppingCart, Sun, Moon } from 'lucide-react';
+import { LogOut, ShoppingCart, Sun, Moon, UserCog } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router';
 import { LoginScreen } from '../components/LoginScreen';
 import { ProductCard } from '../components/ProductCard';
 import { AddItemModal } from '../components/AddItemModal';
@@ -267,6 +268,13 @@ export function StorePage() {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <ContactSection />
           <p className="text-muted-foreground mt-8">{BRAND_TEXT.footerCopyright}</p>
+          <Link
+            to="/admin/login"
+            className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+          >
+            <UserCog className="w-3.5 h-3.5" />
+            Área do lojista
+          </Link>
         </div>
       </footer>
 
