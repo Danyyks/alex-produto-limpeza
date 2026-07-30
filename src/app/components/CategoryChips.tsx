@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import type { CategoryConfig } from '../config/categories';
+import type { ResolvedCategory } from '../types/menu';
 
 interface CategoryChipsProps {
-  categories: CategoryConfig[];
+  categories: ResolvedCategory[];
 }
 
 export function CategoryChips({ categories }: CategoryChipsProps) {
@@ -12,7 +12,7 @@ export function CategoryChips({ categories }: CategoryChipsProps) {
 
   useEffect(() => {
     const sections = categories
-      .map(({ key }) => document.getElementById(`category-${key}`))
+      .map(({ id }) => document.getElementById(`category-${id}`))
       .filter((el): el is HTMLElement => el !== null);
 
     if (sections.length === 0) return;
@@ -48,15 +48,15 @@ export function CategoryChips({ categories }: CategoryChipsProps) {
     <div className="sticky top-[81px] md:top-[89px] z-20 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {categories.map(({ key, label, icon: Icon }) => {
-            const isActive = key === activeKey;
+          {categories.map(({ id, label, icon: Icon }) => {
+            const isActive = id === activeKey;
             return (
               <motion.a
-                key={key}
+                key={id}
                 ref={(el) => {
-                  chipRefs.current[key] = el;
+                  chipRefs.current[id] = el;
                 }}
-                href={`#category-${key}`}
+                href={`#category-${id}`}
                 whileTap={{ scale: 0.95 }}
                 aria-current={isActive ? 'true' : undefined}
                 className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3.5 py-1.5 border transition-all duration-200 ${

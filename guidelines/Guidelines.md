@@ -14,22 +14,30 @@ Exceção: o botão de WhatsApp usa verde (`bg-green-500`) de propósito — é 
 
 ## Categorias de produto
 
-Categorias ficam definidas em `src/app/config/categories.ts` (chave, rótulo exibido, ícone, e o `type Category`). Para adicionar uma categoria nova:
-1. Adicionar a chave no `type Category`.
-2. Adicionar a entrada em `CATEGORIES` com rótulo e ícone do `lucide-react`.
-3. Adicionar a chave nova em `PRODUCTS` (`src/app/data/products.ts`), mesmo que com array vazio.
+Categorias são gerenciadas pelo lojista em `/admin/categories` (criar, renomear, reordenar, excluir) — viram documentos na coleção `categories` do Firestore (`label`, `icon` como nome de string, `order`). O ícone precisa estar na allow-list de `src/app/config/categoryIcons.ts` (`CATEGORY_ICON_NAMES`) — pra adicionar uma opção nova de ícone ao seletor do admin, importar o ícone do `lucide-react` e incluir nesse arquivo.
 
-O restante (seções do catálogo) é gerado automaticamente a partir desse array — não precisa duplicar código em `App.tsx`.
+`src/app/config/categories.ts` (o `type Category` fixo de 4 categorias e o array `CATEGORIES`) **não foi removido** — continua existindo só como estrutura do catálogo de fallback local (ver seção abaixo, hoje com arrays vazios em `data/products.ts`). Não é mais o lugar onde categorias "de verdade" são editadas no dia a dia — isso é feito em `/admin/categories`, que hoje começa vazio (o lojista cria as próprias categorias do zero).
 
-## Catálogo (estado atual: dados fixos no código)
+## Catálogo (Firestore, com fallback local)
 
-Não há banco de dados neste momento. Os produtos ficam em `src/app/data/products.ts`, servidos pelo hook `src/app/hooks/useMenuData.ts`. Para adicionar, editar ou remover um produto, editar esse arquivo diretamente e rodar `pnpm build` para conferir.
+Produtos e categorias vêm do Firestore, servidos pelo hook `src/app/hooks/useMenuData.ts` — esse hook é o único lugar que sabe de onde os dados vêm; o resto do app (`StorePage.tsx`, `ProductCard`, etc.) só consome o resultado, sem saber se veio do Firestore ou do fallback.
 
-**Plano futuro**: migrar para Firebase (Firestore para os produtos, Auth para login do admin, Storage para upload de imagens) e trazer de volta um painel de administração via navegador. Quando isso acontecer, `useMenuData.ts` é o único lugar que precisa trocar a fonte dos dados — o resto do app (App.tsx, ProductCard, etc.) não depende de como os dados chegam.
+Quando o Firebase não está configurado neste ambiente (`isFirebaseConfigured` em `src/app/lib/firebase.ts`) — ou se a leitura do Firestore falhar — o hook cai automaticamente pro catálogo fixo em `src/app/data/products.ts` + `src/app/config/categories.ts`. Isso é proposital: a loja nunca fica fora do ar por causa de uma falha ou ausência de configuração do Firebase.
+
+Editar produtos/categorias "de verdade" (com o Firebase conectado) é feito pelo painel `/admin`, não editando código. Editar `data/products.ts`/`config/categories.ts` só faz sentido pra ajustar o catálogo que aparece nesse modo de fallback.
+
+## Sessão do cliente vs. login do admin
+
+Duas coisas que parecem parecidas mas são sistemas completamente diferentes — ver detalhes em [SDD.md](../SDD.md#sessão-e-autenticação):
+
+- Cliente da loja: `useSession` — só um nome, sem senha, persistido em `localStorage`. Não é autenticação real.
+- Lojista no painel: `useAdminAuth` — Firebase Auth (e-mail/senha) de verdade, mais checagem de que o UID está em `admins/{uid}` no Firestore.
+
+Nunca misturar os dois fluxos nem reaproveitar `LoginScreen.tsx` (cliente) para telas do admin.
 
 ## Checkout / WhatsApp
 
-A mensagem é montada em `App.tsx` (`handleCheckout`), com nome do cliente, endereço, itens e total, e aberta via `window.location.href = "https://wa.me/<número>?text=..."`. O número vem de `VITE_WHATSAPP_NUMBER` no `.env`/na Vercel — nunca hardcoded no código. `handleCheckout` valida que o número existe antes de montar o link (mostra um alerta se faltar, em vez de abrir um `wa.me/undefined`).
+A mensagem é montada em `src/app/pages/StorePage.tsx` (`handleCheckout`), com nome do cliente, endereço, itens e total, e aberta via `window.location.href = "https://wa.me/<número>?text=..."`. O número vem de `VITE_WHATSAPP_NUMBER` no `.env`/na Vercel — nunca hardcoded no código. `handleCheckout` valida que o número existe antes de montar o link (mostra um alerta se faltar, em vez de abrir um `wa.me/undefined`).
 
 Dois cuidados específicos, aprendidos com bugs reais em produção: usar sempre `window.location.href` (não `window.open`) — um PWA instalado em modo standalone não sabe abrir "nova aba", e o Android recusa o link; e evitar emojis fora do plano básico do Unicode (ex. 📍) na mensagem — o redirecionamento do próprio `wa.me` os corrompe. Detalhes em [SDD.md](../SDD.md#incidentes-conhecidos-2026-07-25).
 
@@ -39,4 +47,4 @@ Dois cuidados específicos, aprendidos com bugs reais em produção: usar sempre
 
 ## Deploy
 
-O projeto está pronto para deploy na Vercel (`vercel.json` já configurado: build via `pnpm run build`, saída em `dist/`, rewrite de SPA). Não depende de nenhuma variável de ambiente além de `VITE_WHATSAPP_NUMBER` no momento.
+O projeto está pronto para deploy na Vercel (`vercel.json` já configurado: build via `pnpm run build`, saída em `dist/`, rewrite de SPA — o mesmo rewrite catch-all já cobre as rotas do `/admin`). Variáveis de ambiente: `VITE_WHATSAPP_NUMBER` (checkout) e as 6 `VITE_FIREBASE_*` (catálogo dinâmico + admin) — ver `.env.example`. As variáveis do Firebase podem ficar em branco sem quebrar o deploy; a loja só usa o catálogo de fallback local até serem preenchidas.

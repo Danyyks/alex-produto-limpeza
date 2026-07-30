@@ -19,12 +19,13 @@ Lojas de produtos de limpeza de bairro costumam receber pedidos manualmente pelo
 
 ## Funcionalidades atuais
 
-1. **Login simples** — cliente informa apenas o nome (sem senha, sem cadastro).
-2. **Catálogo por categoria** — Limpeza Geral, Lavanderia, Higiene & Descartáveis, Kits & Combos.
+1. **Login simples com sessão persistente** — cliente informa apenas o nome (sem senha, sem cadastro); a sessão fica salva no aparelho entre visitas (não pede o nome de novo a cada F5), e um botão "Sair" no header encerra a sessão manualmente (limpando também o carrinho).
+2. **Catálogo por categoria** — categorias e produtos 100% gerenciáveis pelo painel administrativo (item 7); o catálogo começa vazio, sem categorias nem produtos de exemplo — o lojista monta tudo do zero.
 3. **Carrinho** — adicionar item com quantidade e observações, editar quantidade, remover item.
 4. **Checkout via WhatsApp** — cliente informa endereço de entrega; app monta mensagem com todos os itens, quantidades, observações e total, e abre o WhatsApp da loja com o texto pronto.
 5. **PWA instalável** — manifest e ícones próprios (192/512/maskable/apple-touch-icon), instalável na tela inicial do celular ou desktop, com service worker para carregamento rápido.
 6. **Tema claro/escuro** — alternância manual no header, respeitando a preferência do sistema operacional por padrão e lembrando a escolha do usuário entre visitas.
+7. **Painel administrativo** (`/admin`) — login separado (Firebase Auth) para o lojista, com CRUD completo de produtos (nome, descrição, preço, foto, categoria, ativo/inativo) e de categorias (criar, renomear, reordenar, excluir). Ver [SDD.md](SDD.md) para detalhes técnicos.
 
 ## Fluxo do usuário
 
@@ -40,11 +41,8 @@ Lojas de produtos de limpeza de bairro costumam receber pedidos manualmente pelo
 
 - Pagamento online (o pagamento é combinado depois, fora do app).
 - Rastreamento de status do pedido (o pedido "sai" do app assim que vai para o WhatsApp).
-- Painel de administração para o lojista editar produtos pela interface (hoje é feito editando código-fonte).
-- Conta de usuário persistente (o "login" não autentica nada, é só personalização da saudação).
+- Múltiplas contas de admin com papéis diferentes (hoje qualquer UID em `admins` tem acesso total ao painel).
 
 ## Roadmap
 
-- **Curto prazo** (em andamento): substituir fotos de exemplo (Unsplash) pelas fotos reais dos produtos da loja — fotos próprias entram em `public/products/` e são referenciadas em `products.ts` (ex: Álcool Gel 70%).
-- **Médio prazo**: integrar **Firebase** — Firestore para catálogo dinâmico (parar de editar `products.ts` no código), Auth para login do lojista, Storage para upload de imagens dos produtos.
-- **Médio/longo prazo**: trazer de volta um **painel de administração** simples (CRUD de produtos, ativar/desativar itens) uma vez que o Firebase estiver integrado.
+- **Curto prazo**: catálogo começa **zerado** de propósito (sem produtos/categorias de exemplo) — o lojista cadastra tudo do zero pelo painel `/admin`, incluindo as próprias fotos.
