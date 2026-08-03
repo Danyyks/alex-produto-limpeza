@@ -21,9 +21,9 @@ export function ContactSection() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex items-center gap-3">
       <span className="text-xs md:text-sm font-medium uppercase tracking-wide text-muted-foreground">
-        Fale com a gente
+        Contato:
       </span>
 
       <div className="flex items-center gap-2.5">

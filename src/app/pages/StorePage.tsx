@@ -264,16 +264,15 @@ export function StorePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-10 mt-16">
-        <div className="max-w-6xl mx-auto px-4 text-center">
+      <footer className="bg-card border-t border-border py-4 mt-16">
+        <div className="max-w-6xl mx-auto px-4 relative flex items-center justify-center">
           <ContactSection />
-          <p className="text-muted-foreground mt-8">{BRAND_TEXT.footerCopyright}</p>
           <Link
             to="/admin/login"
-            className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors shrink-0"
           >
             <UserCog className="w-3.5 h-3.5" />
-            Área do lojista
+            <span className="hidden sm:inline">ADMIN</span>
           </Link>
         </div>
       </footer>

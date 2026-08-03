@@ -13,7 +13,6 @@ export const BRAND_BANNER_SRC = '/banner.jpg';
 export const BRAND_TEXT = {
   loginWelcome: 'Bem-vindo à nossa loja online!',
   loginTagline: 'Tudo para deixar sua casa limpa, com praticidade e confiança.',
-  footerCopyright: `© 2026 ${BRAND_NAME} - Todos os direitos reservados`,
   heroHeadline: 'Cuidando do seu ambiente com excelência, confiança e brilho',
   heroSubtitle: 'Monte seu pedido e receba em casa',
   sessionLogoutConfirm: 'Sair da loja? Isso vai limpar seu carrinho atual.',
