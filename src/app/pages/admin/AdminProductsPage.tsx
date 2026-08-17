@@ -2,24 +2,20 @@ import { useEffect, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { ProductForm } from '../../components/admin/ProductForm';
-import { getCategories, type CategoryDoc } from '../../services/categories';
 import { deleteProduct, getProducts, setProductActive, type ProductDoc } from '../../services/products';
 import { deleteProductImage } from '../../services/storage';
 
 export function AdminProductsPage() {
   const [products, setProducts] = useState<ProductDoc[]>([]);
-  const [categories, setCategories] = useState<CategoryDoc[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [formOpen, setFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductDoc | undefined>(undefined);
 
   const reload = async () => {
     setIsLoading(true);
-    const [productDocs, categoryDocs] = await Promise.all([getProducts(), getCategories()]);
+    const productDocs = await getProducts();
     setProducts(productDocs);
-    setCategories(categoryDocs);
     setIsLoading(false);
   };
 
@@ -27,13 +23,7 @@ export function AdminProductsPage() {
     reload();
   }, []);
 
-  const categoryLabel = (id: string) => categories.find((c) => c.id === id)?.label ?? '—';
-
-  const filtered = products.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || p.categoryId === categoryFilter;
-    return matchesSearch && matchesCategory;
-  });
+  const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleDelete = async (product: ProductDoc) => {
     if (!window.confirm(`Excluir "${product.name}"? Essa ação não pode ser desfeita.`)) return;
@@ -76,18 +66,6 @@ export function AdminProductsPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 min-w-[200px] px-4 py-2.5 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2.5 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          <option value="all">Todas as categorias</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.label}
-            </option>
-          ))}
-        </select>
       </div>
 
       {filtered.length === 0 ? (
@@ -106,9 +84,7 @@ export function AdminProductsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-foreground font-medium truncate">{product.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {categoryLabel(product.categoryId)} · R$ {product.price.toFixed(2)}
-                </p>
+                <p className="text-sm text-muted-foreground">R$ {product.price.toFixed(2)}</p>
               </div>
               <label className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
                 <input
@@ -147,7 +123,6 @@ export function AdminProductsPage() {
         isOpen={formOpen}
         onClose={() => setFormOpen(false)}
         onSaved={reload}
-        categories={categories}
         product={editingProduct}
       />
     </div>

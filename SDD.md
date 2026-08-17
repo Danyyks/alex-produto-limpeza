@@ -4,14 +4,14 @@ Documento de arquitetura técnica. Para contexto de produto, ver [PRD.md](PRD.md
 
 ## Arquitetura
 
-SPA (Single Page Application) front-end, sem servidor próprio — o "backend" é o **Firebase** (Firestore + Authentication), acessado direto do navegador via SDK client-side, sem API intermediária. Upload de foto de produto vai pro **Cloudinary** (não Firebase Storage — esse exige o plano pago Blaze; Cloudinary tem plano gratuito sem cartão), via `fetch` direto pra API REST deles, sem SDK. Roteamento client-side via `react-router` (`/` = loja, `/admin/*` = painel do lojista, com code-splitting via `React.lazy`). O carrinho e o tema continuam em `localStorage`/React state; a sessão do cliente (nome) também passou a persistir em `localStorage`. O catálogo (produtos e categorias) vem do Firestore, com fallback pro catálogo local estático (`src/app/data/products.ts` + `src/app/config/categories.ts`) sempre que o Firebase não estiver configurado ou a leitura falhar — a loja nunca fica fora do ar por causa disso. O checkout continua fechado com o **WhatsApp**, via link `https://wa.me/<numero>?text=<mensagem>`.
+SPA (Single Page Application) front-end, sem servidor próprio — o "backend" é o **Firebase** (Firestore + Authentication), acessado direto do navegador via SDK client-side, sem API intermediária. Upload de foto de produto vai pro **Cloudinary** (não Firebase Storage — esse exige o plano pago Blaze; Cloudinary tem plano gratuito sem cartão), via `fetch` direto pra API REST deles, sem SDK. Roteamento client-side via `react-router` (`/` = loja, `/admin/*` = painel do lojista, com code-splitting via `React.lazy`). O carrinho e o tema continuam em `localStorage`/React state; a sessão do cliente (nome) também passou a persistir em `localStorage`. O catálogo (lista simples de produtos, sem categorias) vem do Firestore, com fallback pro catálogo local estático (`src/app/data/products.ts`) sempre que o Firebase não estiver configurado ou a leitura falhar — a loja nunca fica fora do ar por causa disso. O checkout continua fechado com o **WhatsApp**, via link `https://wa.me/<numero>?text=<mensagem>`.
 
 ```
 Cliente (navegador/PWA, rota "/")             Lojista (navegador, rota "/admin/*")
    │                                              │
    ├─ useSession (login em localStorage)           ├─ useAdminAuth (Firebase Auth)
-   ├─ useMenuData → Firestore (products/            ├─ services/* → Firestore (CRUD) +
-   │   categories); fallback local se offline       │   Cloudinary (upload de fotos)
+   ├─ useMenuData → Firestore (products);           ├─ services/products.ts → Firestore
+   │   fallback local se offline                    │   (CRUD) + Cloudinary (upload)
    │                                              │
    └─ Checkout → https://wa.me/...  ───────────────────────────┐
                                                                  ▼
@@ -37,7 +37,7 @@ Cliente (navegador/PWA, rota "/")             Lojista (navegador, rota "/admin/*
 
 ## Design system
 
-Tokens de cor centralizados em `src/styles/theme.css`: variáveis CSS em `:root` (tema claro) e `.dark` (tema escuro), expostas ao Tailwind via `@theme inline` (ex: `--color-primary: var(--primary)`). Paleta: roxo `#6D28D9` (primary) e verde-água `#14B8A6` (accent) no claro; tons ajustados (`#a78bfa` primary, `#2dd4bf` accent) no escuro para manter contraste em fundo escuro. Raio de borda padronizado via `--radius` (0.75rem) com variantes `sm/md/lg/xl` derivadas.
+Tokens de cor centralizados em `src/styles/theme.css`: variáveis CSS em `:root` (tema claro) e `.dark` (tema escuro), expostas ao Tailwind via `@theme inline` (ex: `--color-primary: var(--primary)`). Paleta: azul `#4a63d6` (primary) e ciano `#0ea5e9` (accent) no claro; tons ajustados (`#7c93f0` primary, `#38bdf8` accent) no escuro para manter contraste em fundo escuro. Raio de borda padronizado via `--radius` (0.75rem) com variantes `sm/md/lg/xl` derivadas.
 
 **Dark mode**: ativado por classe `.dark` na raiz do documento (não por `prefers-color-scheme` isolado), controlado pelo hook `src/app/hooks/useTheme.ts`:
 - Estado inicial: `localStorage['alex-theme']` se existir, senão `window.matchMedia('(prefers-color-scheme: dark)')`.
@@ -47,7 +47,7 @@ Tokens de cor centralizados em `src/styles/theme.css`: variáveis CSS em `:root`
 ## PWA
 
 Implementado com **`vite-plugin-pwa`** (`registerType: 'autoUpdate'`, modo `generateSW`), configurado em `vite.config.ts`:
-- **Manifest** (`manifest.webmanifest`, gerado no build): nome, `theme_color` (`#6d28d9`), `background_color` (`#f8f7fc`), `display: standalone`, ícones 64/192/512 + variante maskable.
+- **Manifest** (`manifest.webmanifest`, gerado no build): nome, `theme_color` (`#4a63d6`), `background_color` (`#f7f9fd`), `display: standalone`, ícones 64/192/512 + variante maskable.
 - **Service worker**: gerado automaticamente pelo Workbox (via o plugin), faz precache dos assets do build (`globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}']`) para carregamento instantâneo em visitas repetidas e funcionamento básico offline. Registrado automaticamente pelo próprio plugin (sem código manual em `main.tsx`).
 - **Ícones**: gerados a partir de `public/favicon.svg` (fonte única) via `@vite-pwa/assets-generator` (preset `minimal-2023`), configurado em `pwa-assets.config.ts`. Saída: `favicon.ico`, `apple-touch-icon-180x180.png`, `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`, `maskable-icon-512x512.png` — todos versionados em `public/`.
 - **Meta tags** em `index.html`: `theme-color` (com variantes por `prefers-color-scheme`), `apple-mobile-web-app-*`, `apple-touch-icon`, favicon `.ico` como fallback do SVG.
@@ -87,12 +87,11 @@ Itens iguais com observações diferentes viram entradas separadas no carrinho (
 |---|---|---|---|
 | `products/{id}` | `name`, `description`, `price` | string, string, number | `description` é sempre string (nunca `undefined` — Firestore rejeita o campo) |
 | | `image`, `imagePath` | string \| null | `image` = URL pública do Cloudinary (`secure_url`); `imagePath` = `public_id` do Cloudinary (não usado pra excluir hoje — ver "Painel administrativo") |
-| | `active`, `categoryId` | boolean, string | `categoryId` referencia um doc em `categories` |
+| | `active` | boolean | controla visibilidade na loja |
 | | `createdAt`, `updatedAt` | Timestamp | `serverTimestamp()` |
-| `categories/{id}` | `label`, `icon`, `order` | string, string, number | `icon` é o NOME do ícone (allow-list em `src/app/config/categoryIcons.ts`), não o componente — `LucideIcon` não é serializável |
 | `admins/{uid}` | `email`, `createdAt` | string, Timestamp | **nunca criado pelo app** — só manualmente no Firebase Console |
 
-IDs de `products`/`categories` são sempre auto-gerados pelo Firestore (nunca o slug/nome), pra permitir renomear sem quebrar a referência em `products.categoryId`. Tipos completos em `src/app/services/products.ts` (`ProductDoc`) e `src/app/services/categories.ts` (`CategoryDoc`).
+IDs de `products` são sempre auto-gerados pelo Firestore (nunca o slug/nome). Tipo completo em `src/app/services/products.ts` (`ProductDoc`). Produtos não têm mais categoria — o catálogo é uma lista simples, sem agrupamento (a loja compensa isso com busca por nome, ver "Painel administrativo").
 
 ## Sessão e autenticação
 
@@ -108,8 +107,9 @@ Criar um admin novo é sempre manual: Authentication → Add user no Firebase Co
 Rota `/admin/*`, code-split via `React.lazy` em `App.tsx` — `firebase/auth` só entra no bundle de quem visita `/admin`, nunca no bundle da loja (`firebase/firestore` continua eager pra loja, já que o catálogo público depende dele desde o primeiro carregamento).
 
 - `/admin/login` — login do lojista (pública).
-- `/admin` — lista de produtos (busca por nome, filtro por categoria, ativar/desativar, editar, excluir) + formulário de criar/editar (modal, com upload de foto).
-- `/admin/categories` — lista de categorias (criar, renomear, reordenar com ▲/▼, excluir — bloqueado se ainda houver produto na categoria).
+- `/admin` — lista de produtos (busca por nome, ativar/desativar, editar, excluir) + formulário de criar/editar (modal, com upload de foto). Um botão no header do painel ("voltar à loja") leva de volta pra `/` sem deslogar.
+
+A loja pública (`/`) não agrupa mais produtos por categoria — é uma lista única, com uma busca por nome no lugar da antiga navegação por chips de categoria.
 
 **Upload de foto** (`src/app/services/storage.ts`): passa primeiro por `src/app/lib/imageResize.ts` (redimensiona no client via `canvas`, lado maior ~1200px, JPEG ~0.8 de qualidade — evita subir fotos de celular com vários MB), depois vai direto do navegador pro **Cloudinary** via `fetch` num "unsigned upload preset" (`VITE_CLOUDINARY_CLOUD_NAME`/`VITE_CLOUDINARY_UPLOAD_PRESET`), sem SDK e sem backend. Não corrige orientação EXIF (ver "Limitações conhecidas").
 
@@ -140,7 +140,7 @@ Três problemas distintos apareceram entre a implementação do checkout e o fun
 - Carrinho não persiste entre sessões (perdido ao fechar a aba/app) — só tema e sessão do cliente são persistidos.
 - "Login" do cliente não autentica nada de verdade — é personalização de saudação + continuidade entre visitas, sem senha nem proteção real (proteção real existe só no `/admin`, via Firebase Auth).
 - Catálogo público não é tempo real (`getDocs`, não `onSnapshot`) — uma edição no admin só aparece pra quem já estava com a loja aberta depois de recarregar a página.
-- Sem paginação no admin — lista de produtos/categorias inteira de uma vez (adequado ao tamanho de catálogo de uma loja pequena; reavaliar se crescer muito).
+- Sem paginação no admin — lista de produtos inteira de uma vez (adequado ao tamanho de catálogo de uma loja pequena; reavaliar se crescer muito).
 - Redimensionamento de imagem no upload não corrige orientação EXIF (fotos em retrato de alguns celulares podem vir giradas).
 - Trocar/excluir a foto de um produto não apaga o arquivo antigo no Cloudinary (exclusão real exigiria a API Secret, que não fica no client) — fotos antigas ficam órfãs, sem impacto prático no volume de uma loja pequena.
 - Sem rastreamento de pedido após o envio pelo WhatsApp.

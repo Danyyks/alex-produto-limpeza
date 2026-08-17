@@ -4,7 +4,7 @@ Guia para sessões de IA (Claude Code ou similar) trabalhando neste repositório
 
 ## Visão geral
 
-"RB Clean" é uma SPA (React) de catálogo online com checkout via WhatsApp — sem servidor próprio, sem pagamento online; o "backend" é o Firebase (Firestore + Authentication), usado direto do client, mais o Cloudinary pro upload de foto de produto (Firebase Storage exige plano pago, não usado aqui). O cliente informa o nome, monta o carrinho e o app abre o WhatsApp da loja com o pedido pronto. O lojista gerencia produtos e categorias por um painel em `/admin` (Firebase Auth, separado do login do cliente) — ver [SDD.md](SDD.md) para detalhes técnicos de ambos os sistemas de sessão.
+"RB Clean" é uma SPA (React) de catálogo online com checkout via WhatsApp — sem servidor próprio, sem pagamento online; o "backend" é o Firebase (Firestore + Authentication), usado direto do client, mais o Cloudinary pro upload de foto de produto (Firebase Storage exige plano pago, não usado aqui). O cliente informa o nome, monta o carrinho e o app abre o WhatsApp da loja com o pedido pronto. O lojista gerencia os produtos (sem categorias — lista única, com busca por nome na loja) por um painel em `/admin` (Firebase Auth, separado do login do cliente) — ver [SDD.md](SDD.md) para detalhes técnicos de ambos os sistemas de sessão.
 
 **Em produção**: https://alex-produto-limpeza.vercel.app (deploy automático a cada push em `main`, via integração Git da Vercel).
 
@@ -23,25 +23,23 @@ src/
 ├── app/
 │   ├── App.tsx                    # shell do react-router: "/" (loja) e "/admin/*" (painel, lazy)
 │   ├── config/
-│   │   ├── brand.ts                # nome, subtítulo e textos da marca (ponto único de edição)
-│   │   ├── categories.ts           # categorias de fallback local (chave, rótulo, ícone)
-│   │   └── categoryIcons.ts        # allow-list nome→LucideIcon (categoria no Firestore guarda só o nome)
+│   │   └── brand.ts                # nome, subtítulo e textos da marca (ponto único de edição)
 │   ├── data/products.ts            # catálogo de fallback local (usado quando Firebase não está configurado)
-│   ├── types/menu.ts                # tipos compartilhados MenuItem, ResolvedCategory
+│   ├── types/menu.ts                # tipo compartilhado MenuItem
 │   ├── lib/
 │   │   ├── firebase.ts              # bootstrap do Firebase App + Firestore (app/db) — auth fica em services/
 │   │   └── imageResize.ts           # redimensiona foto no client (canvas) antes do upload
-│   ├── services/                    # products, categories, auth falam com Firebase; storage.ts fala com o Cloudinary (não Firebase Storage)
+│   ├── services/                    # products, auth falam com Firebase; storage.ts fala com o Cloudinary (não Firebase Storage)
 │   ├── hooks/
 │   │   ├── useMenuData.ts           # serve o catálogo (Firestore, com fallback local automático)
 │   │   ├── useSession.ts            # sessão do CLIENTE (nome em localStorage, sem senha)
 │   │   ├── useAdminAuth.ts          # sessão do LOJISTA (Firebase Auth + checagem em admins/{uid})
 │   │   └── useTheme.ts              # estado do tema claro/escuro (localStorage + prefers-color-scheme)
 │   ├── pages/
-│   │   ├── StorePage.tsx            # loja (rota "/") — layout principal, carrinho, checkout
-│   │   └── admin/                   # painel: AdminRoutes, RequireAdmin, AdminLoginPage, AdminLayout, AdminProductsPage, AdminCategoriesPage
-│   └── components/                  # BrandMark, LoginScreen, ProductCard, AddItemModal, CartDrawer...
-│       └── admin/                   # ProductForm, CategoryForm (modais do painel)
+│   │   ├── StorePage.tsx            # loja (rota "/") — layout principal, busca, carrinho, checkout
+│   │   └── admin/                   # painel: AdminRoutes, RequireAdmin, AdminLoginPage, AdminLayout, AdminProductsPage
+│   └── components/                  # BrandMark, LoginScreen, ProductCard, Modal, AddItemModal, CartDrawer...
+│       └── admin/                   # ProductForm (modal do painel, usa o Modal compartilhado)
 └── styles/                          # fonts.css, tailwind.css, theme.css (tokens de cor)
 ```
 
@@ -52,6 +50,11 @@ Cores vivem como variáveis CSS em `src/styles/theme.css` (`:root` = claro, `.da
 ## Dark mode
 
 Implementado via `src/app/hooks/useTheme.ts`: aplica/remove a classe `.dark` em `document.documentElement`, persiste a escolha em `localStorage` (`alex-theme`) e usa `prefers-color-scheme` como valor inicial. Há também um script inline em `index.html` que aplica a classe antes do React montar (evita flash de tela clara em quem prefere escuro). O botão de alternância fica no header da loja (`src/app/pages/StorePage.tsx`), entre os botões de sair e carrinho. Qualquer novo componente com cor de fundo/texto deve usar tokens (ver seção acima) para responder automaticamente à troca de tema.
+
+## Componentes compartilhados de UI
+
+- `src/app/components/Button.tsx` — único componente de botão do projeto (variantes `primary|secondary|tertiary|destructive|whatsapp|hero`, tamanhos `default|sm|icon|icon-sm`). Reaproveitar sempre em vez de estilizar um `<button>` na mão.
+- `src/app/components/Modal.tsx` — padrão de modal centralizado (overlay + card animado, fecha com `Esc`, foca o botão de fechar ao abrir). Usado por `AddItemModal.tsx` e `components/admin/ProductForm.tsx`. `CartDrawer.tsx` é um padrão visual diferente (drawer lateral deslizante) e não usa esse componente.
 
 ## PWA
 
@@ -84,7 +87,7 @@ Já aconteceu mais de uma vez neste projeto — checar nesta ordem:
 
 1. **Login em `/admin/login` sempre falha com "Firebase ainda não foi configurado neste ambiente"**: as 6 env vars `VITE_FIREBASE_*` não estão preenchidas neste ambiente (local ou Vercel) — ver seção "Variáveis de ambiente". Comportamento esperado até o projeto Firebase real existir.
 2. **Login funciona mas cai com "Esta conta não tem permissão de administrador"**: o usuário existe no Firebase Authentication, mas não tem um documento correspondente em `admins/{uid}` no Firestore. Precisa ser criado manualmente no Firestore Console (o app nunca faz isso sozinho, de propósito).
-3. **Editou um produto/categoria no admin e a loja não mudou**: catálogo público usa busca única (`getDocs`), não tempo real — precisa recarregar a página da loja pra ver a mudança.
+3. **Editou um produto no admin e a loja não mudou**: catálogo público usa busca única (`getDocs`), não tempo real — precisa recarregar a página da loja pra ver a mudança.
 4. **Loja carregando produtos "errados"/antigos mesmo com o Firestore populado**: confirmar que `isFirebaseConfigured` está `true` neste ambiente (env vars presentes) — senão a loja está servindo o catálogo de fallback local (`src/app/data/products.ts`), não o Firestore.
 5. **Upload de foto falha com "Upload de foto não está configurado neste ambiente"**: as 2 env vars `VITE_CLOUDINARY_*` não estão preenchidas neste ambiente — resto do formulário de produto funciona normalmente, só a foto que não sobe.
 6. **Upload de foto falha com outro erro**: confirmar no [dashboard do Cloudinary](https://cloudinary.com) que o upload preset referenciado em `VITE_CLOUDINARY_UPLOAD_PRESET` ainda existe e continua com "Signing Mode" = **Unsigned** (Settings → Upload → Upload presets) — se alguém mudar pra "Signed" sem querer, todo upload direto do navegador para de funcionar.

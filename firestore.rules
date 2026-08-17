@@ -11,11 +11,6 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
     match /admins/{uid} {
       // Cada usuário só lê o PRÓPRIO doc (autocheck "sou admin?"). Nunca
       // escrito pelo app — criação é sempre manual, via Firebase Console.

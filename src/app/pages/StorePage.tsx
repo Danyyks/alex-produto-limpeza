@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, ShoppingCart, Sun, Moon, UserCog } from 'lucide-react';
+import { LogOut, Search, ShoppingCart, Sun, Moon, UserCog } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { LoginScreen } from '../components/LoginScreen';
@@ -8,7 +8,6 @@ import { AddItemModal } from '../components/AddItemModal';
 import { CartDrawer, CartItem } from '../components/CartDrawer';
 import { BrandMark } from '../components/BrandMark';
 import { ContactSection } from '../components/ContactSection';
-import { CategoryChips } from '../components/CategoryChips';
 import { Button } from '../components/Button';
 import { useMenuData } from '../hooks/useMenuData';
 import { useTheme } from '../hooks/useTheme';
@@ -24,7 +23,7 @@ import {
 
 export function StorePage() {
   // ── Catálogo (Firestore, com fallback local — ver hooks/useMenuData.ts) ──
-  const { status, categories, itemsByCategory } = useMenuData();
+  const { status, items } = useMenuData();
 
   // ── Tema claro/escuro ────────────────────────────────────────
   const { theme, toggleTheme } = useTheme();
@@ -33,6 +32,7 @@ export function StorePage() {
   const { userName, isLoggedIn, login, logout } = useSession();
 
   // ── Estado do cliente ───────────────────────────────────────
+  const [search, setSearch] = useState('');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [modalData, setModalData] = useState<{
@@ -138,9 +138,12 @@ export function StorePage() {
     );
   }
 
-  const visibleCategories = categories.filter(
-    (c) => (itemsByCategory[c.id] ?? []).filter((item) => item.active).length > 0,
-  );
+  const activeItems = items.filter((item) => item.active);
+  const filteredItems = activeItems.filter((item) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return item.name.toLowerCase().includes(q) || (item.description ?? '').toLowerCase().includes(q);
+  });
 
   // ── Site principal (cliente logado) ─────────────────────────
   return (
@@ -225,42 +228,45 @@ export function StorePage() {
         </motion.div>
       </section>
 
-      <CategoryChips categories={visibleCategories} />
+      <div className="sticky top-[81px] md:top-[89px] z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar produto…"
+              aria-label="Buscar produto"
+              className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-card focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {visibleCategories.map(({ id, label, icon: Icon }, index) => {
-          const items = itemsByCategory[id].filter((item) => item.active);
-
-          return (
-            <motion.section
-              key={id}
-              id={`category-${id}`}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="mb-12 scroll-mt-[140px] md:scroll-mt-[160px]"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-primary rounded-full p-2">
-                  <Icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <h2 className="text-foreground">{label}</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {items.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    name={item.name}
-                    description={item.description}
-                    price={item.price}
-                    image={item.image ?? undefined}
-                    onAdd={() => openModal(item.id, item.name, item.price)}
-                  />
-                ))}
-              </div>
-            </motion.section>
-          );
-        })}
+        {filteredItems.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">Nenhum produto encontrado.</p>
+        ) : (
+          <div className="flex flex-col gap-3 md:gap-4">
+            {filteredItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.03 }}
+              >
+                <ProductCard
+                  name={item.name}
+                  description={item.description}
+                  price={item.price}
+                  image={item.image ?? undefined}
+                  onAdd={() => openModal(item.id, item.name, item.price)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* Footer */}
@@ -269,7 +275,7 @@ export function StorePage() {
           <ContactSection />
           <Link
             to="/admin/login"
-            className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors shrink-0"
+            className="absolute right-4 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors shrink-0"
           >
             <UserCog className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">ADMIN</span>

@@ -12,19 +12,13 @@ Todas as cores da marca são tokens CSS em `src/styles/theme.css` (`:root` para 
 
 Exceção: o botão de WhatsApp usa verde (`bg-green-500`) de propósito — é a cor oficial do WhatsApp, não da marca.
 
-## Categorias de produto
-
-Categorias são gerenciadas pelo lojista em `/admin/categories` (criar, renomear, reordenar, excluir) — viram documentos na coleção `categories` do Firestore (`label`, `icon` como nome de string, `order`). O ícone precisa estar na allow-list de `src/app/config/categoryIcons.ts` (`CATEGORY_ICON_NAMES`) — pra adicionar uma opção nova de ícone ao seletor do admin, importar o ícone do `lucide-react` e incluir nesse arquivo.
-
-`src/app/config/categories.ts` (o `type Category` fixo de 4 categorias e o array `CATEGORIES`) **não foi removido** — continua existindo só como estrutura do catálogo de fallback local (ver seção abaixo, hoje com arrays vazios em `data/products.ts`). Não é mais o lugar onde categorias "de verdade" são editadas no dia a dia — isso é feito em `/admin/categories`, que hoje começa vazio (o lojista cria as próprias categorias do zero).
-
 ## Catálogo (Firestore, com fallback local)
 
-Produtos e categorias vêm do Firestore, servidos pelo hook `src/app/hooks/useMenuData.ts` — esse hook é o único lugar que sabe de onde os dados vêm; o resto do app (`StorePage.tsx`, `ProductCard`, etc.) só consome o resultado, sem saber se veio do Firestore ou do fallback.
+Produtos vêm do Firestore como lista simples — sem categoria — servidos pelo hook `src/app/hooks/useMenuData.ts`, que é o único lugar que sabe de onde os dados vêm; o resto do app (`StorePage.tsx`, `ProductCard`, etc.) só consome o resultado, sem saber se veio do Firestore ou do fallback. A loja não agrupa mais produtos por categoria — é uma lista única, com busca por nome no lugar da antiga navegação por chips de categoria.
 
-Quando o Firebase não está configurado neste ambiente (`isFirebaseConfigured` em `src/app/lib/firebase.ts`) — ou se a leitura do Firestore falhar — o hook cai automaticamente pro catálogo fixo em `src/app/data/products.ts` + `src/app/config/categories.ts`. Isso é proposital: a loja nunca fica fora do ar por causa de uma falha ou ausência de configuração do Firebase.
+Quando o Firebase não está configurado neste ambiente (`isFirebaseConfigured` em `src/app/lib/firebase.ts`) — ou se a leitura do Firestore falhar — o hook cai automaticamente pro catálogo fixo em `src/app/data/products.ts` (array simples de `MenuItem`, hoje vazio). Isso é proposital: a loja nunca fica fora do ar por causa de uma falha ou ausência de configuração do Firebase.
 
-Editar produtos/categorias "de verdade" (com o Firebase conectado) é feito pelo painel `/admin`, não editando código. Editar `data/products.ts`/`config/categories.ts` só faz sentido pra ajustar o catálogo que aparece nesse modo de fallback.
+Editar produtos "de verdade" (com o Firebase conectado) é feito pelo painel `/admin`, não editando código. Editar `data/products.ts` só faz sentido pra ajustar o catálogo que aparece nesse modo de fallback.
 
 ## Sessão do cliente vs. login do admin
 

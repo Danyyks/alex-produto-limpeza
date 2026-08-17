@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router';
-import { AdminCategoriesPage } from './AdminCategoriesPage';
 import { AdminLayout } from './AdminLayout';
 import { AdminLoginPage } from './AdminLoginPage';
 import { AdminProductsPage } from './AdminProductsPage';
@@ -12,7 +11,6 @@ export default function AdminRoutes() {
       <Route element={<RequireAdmin />}>
         <Route element={<AdminLayout />}>
           <Route index element={<AdminProductsPage />} />
-          <Route path="categories" element={<AdminCategoriesPage />} />
         </Route>
       </Route>
     </Routes>

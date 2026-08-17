@@ -17,7 +17,6 @@ export interface ProductDoc {
   image: string | null;
   imagePath: string | null;
   active: boolean;
-  categoryId: string;
 }
 
 const COLLECTION = 'products';
