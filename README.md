@@ -1,6 +1,6 @@
 # NA Clean Distribuidora — Produtos de Limpeza
 
-Loja online de produtos de limpeza com fluxo simples: o cliente informa o nome, monta o carrinho no catálogo e envia o pedido pronto direto para o WhatsApp da loja. PWA instalável, com tema claro/escuro, sessão do cliente persistente e um painel administrativo (`/admin`, Firebase) para o lojista gerenciar produtos e categorias.
+Loja online de produtos de limpeza com fluxo simples: o cliente informa o nome, monta o carrinho no catálogo (com busca por nome e escolha de perfume/variante quando o produto tiver opções) e envia o pedido pronto direto para o WhatsApp da loja. PWA instalável, com tema claro/escuro, sessão do cliente persistente e um painel administrativo (`/admin`, Firebase) para o lojista gerenciar o catálogo de produtos.
 
 🔗 **Em produção**: https://alex-produto-limpeza.vercel.app
 

@@ -5,7 +5,6 @@
  */
 export const BRAND_NAME = 'NA Clean';
 export const BRAND_SUBTITLE = 'Distribuidora';
-export const BRAND_FULL_NAME = `${BRAND_NAME} — ${BRAND_SUBTITLE}`;
 
 export const BRAND_LOGO_SRC = '/logo.jpeg';
 export const BRAND_BANNER_SRC = '/banner.jpg';
@@ -22,7 +21,7 @@ export const BRAND_TEXT = {
 export const BRAND_CONTACT = {
   whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined,
   email: 'alexcobra161@gmail.com',
-  // Preencher com a URL do perfil (ex.: 'https://instagram.com/rbclean') quando o Instagram da loja estiver pronto.
+  // Preencher com a URL do perfil (ex.: 'https://instagram.com/nacleandistribuidora') quando o Instagram da loja estiver pronto.
   instagramUrl: '',
 };
 

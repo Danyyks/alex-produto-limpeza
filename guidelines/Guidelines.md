@@ -16,6 +16,8 @@ Exceção: o botão de WhatsApp usa verde (`bg-green-500`) de propósito — é 
 
 Produtos vêm do Firestore como lista simples — sem categoria — servidos pelo hook `src/app/hooks/useMenuData.ts`, que é o único lugar que sabe de onde os dados vêm; o resto do app (`StorePage.tsx`, `ProductCard`, etc.) só consome o resultado, sem saber se veio do Firestore ou do fallback. A loja não agrupa mais produtos por categoria — é uma lista única, com busca por nome no lugar da antiga navegação por chips de categoria.
 
+Cada produto pode opcionalmente ter uma lista de `fragrances` (perfumes/variantes, cadastrados como tags em `ProductForm.tsx`); quando presente, o cliente escolhe uma opção no `AddItemModal.tsx` antes de adicionar ao carrinho. Produtos sem essa lista não mostram essa etapa.
+
 Quando o Firebase não está configurado neste ambiente (`isFirebaseConfigured` em `src/app/lib/firebase.ts`) — ou se a leitura do Firestore falhar — o hook cai automaticamente pro catálogo fixo em `src/app/data/products.ts` (array simples de `MenuItem`, hoje vazio). Isso é proposital: a loja nunca fica fora do ar por causa de uma falha ou ausência de configuração do Firebase.
 
 Editar produtos "de verdade" (com o Firebase conectado) é feito pelo painel `/admin`, não editando código. Editar `data/products.ts` só faz sentido pra ajustar o catálogo que aparece nesse modo de fallback.

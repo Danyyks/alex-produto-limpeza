@@ -1,4 +1,4 @@
-# SDD — Documento de Design de Software — Alex, Produtos de Limpeza
+# SDD — Documento de Design de Software — NA Clean Distribuidora
 
 Documento de arquitetura técnica. Para contexto de produto, ver [PRD.md](PRD.md); para convenções do dia a dia, ver [CLAUDE.md](CLAUDE.md).
 
@@ -76,10 +76,11 @@ interface CartItem {
   price: number;
   quantity: number;
   notes?: string;
+  fragrance?: string;  // perfume/variante escolhido no AddItemModal, quando o produto tem opções
 }
 ```
 
-Itens iguais com observações diferentes viram entradas separadas no carrinho (chave de deduplicação é `productId + notes`, ver `StorePage.tsx` → `handleAddToCart`).
+Itens iguais com observações e/ou perfume diferentes viram entradas separadas no carrinho (chave de deduplicação é `productId + notes + fragrance`, ver `StorePage.tsx` → `handleAddToCart`).
 
 ### Firestore
 
@@ -88,6 +89,7 @@ Itens iguais com observações diferentes viram entradas separadas no carrinho (
 | `products/{id}` | `name`, `description`, `price` | string, string, number | `description` é sempre string (nunca `undefined` — Firestore rejeita o campo) |
 | | `image`, `imagePath` | string \| null | `image` = URL pública do Cloudinary (`secure_url`); `imagePath` = `public_id` do Cloudinary (não usado pra excluir hoje — ver "Painel administrativo") |
 | | `active` | boolean | controla visibilidade na loja |
+| | `fragrances` | string[] (opcional) | opções de perfume/variante cadastradas no admin; produtos antigos podem não ter o campo salvo ainda. Quando presente, o cliente escolhe uma opção ao adicionar o item ao carrinho |
 | | `createdAt`, `updatedAt` | Timestamp | `serverTimestamp()` |
 | `admins/{uid}` | `email`, `createdAt` | string, Timestamp | **nunca criado pelo app** — só manualmente no Firebase Console |
 
@@ -107,7 +109,7 @@ Criar um admin novo é sempre manual: Authentication → Add user no Firebase Co
 Rota `/admin/*`, code-split via `React.lazy` em `App.tsx` — `firebase/auth` só entra no bundle de quem visita `/admin`, nunca no bundle da loja (`firebase/firestore` continua eager pra loja, já que o catálogo público depende dele desde o primeiro carregamento).
 
 - `/admin/login` — login do lojista (pública).
-- `/admin` — lista de produtos (busca por nome, ativar/desativar, editar, excluir) + formulário de criar/editar (modal, com upload de foto). Um botão no header do painel ("voltar à loja") leva de volta pra `/` sem deslogar.
+- `/admin` — lista de produtos (busca por nome, ativar/desativar, editar, excluir) + formulário de criar/editar (modal, com upload de foto e lista opcional de perfumes/variantes — tags adicionadas uma a uma em `ProductForm.tsx`). Um botão no header do painel ("voltar à loja") leva de volta pra `/` sem deslogar.
 
 A loja pública (`/`) não agrupa mais produtos por categoria — é uma lista única, com uma busca por nome no lugar da antiga navegação por chips de categoria.
 
@@ -119,7 +121,7 @@ Catálogo público usa busca única (`getDocs`), não `onSnapshot`/tempo real �
 
 ## Fluxo de checkout
 
-`StorePage.tsx` → `handleCheckout(address)` valida que `VITE_WHATSAPP_NUMBER` existe (senão mostra um alerta e interrompe), monta uma string de texto (nome do cliente, endereço, lista de itens com quantidade/observação, total) e navega para `https://wa.me/<numero>?text=<mensagem>` via `window.location.href` (navegação direta — ver seção "Incidentes conhecidos" sobre por que não é `window.open`). Não há confirmação de entrega/leitura — o pedido é considerado "enviado" assim que a página do WhatsApp abre.
+`StorePage.tsx` → `handleCheckout(address)` valida que `VITE_WHATSAPP_NUMBER` existe (senão mostra um alerta e interrompe), monta uma string de texto (nome do cliente, endereço, lista de itens com quantidade/perfume escolhido/observação, total), limpa o carrinho e fecha o drawer e navega para `https://wa.me/<numero>?text=<mensagem>` via `window.location.href` (navegação direta — ver seção "Incidentes conhecidos" sobre por que não é `window.open`). Não há confirmação de entrega/leitura — o pedido é considerado "enviado" assim que a página do WhatsApp abre.
 
 ## Deploy
 
