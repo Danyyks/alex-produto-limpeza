@@ -205,8 +205,13 @@ export function StorePage() {
         </div>
       </header>
 
+      {/* Saudação */}
+      <p className="max-w-6xl mx-auto px-4 pt-4 text-sm text-muted-foreground">
+        Olá, {userName}
+      </p>
+
       {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 pt-4 md:pt-6">
+      <section className="max-w-6xl mx-auto px-4 pt-2 md:pt-4">
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}

@@ -1,9 +1,9 @@
 import { defineConfig, minimal2023Preset as basePreset } from '@vite-pwa/assets-generator/config';
 
 // A cor de fundo do "safe zone" dos ícones maskable/apple precisa bater com o
-// azul sólido de public/app-icon-source.png — o padrão do preset é branco,
-// o que criava bordas brancas visíveis no ícone adaptativo do Android.
-const ICON_BACKGROUND = '#93B8FE';
+// fundo de public/app-icon-source.png (branco, igual ao resto da logo — ver
+// CLAUDE.md) pra não criar uma borda de cor diferente ao redor do ícone.
+const ICON_BACKGROUND = '#ffffff';
 
 const preset = {
   ...basePreset,
