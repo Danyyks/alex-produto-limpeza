@@ -17,6 +17,9 @@ export interface ProductDoc {
   image: string | null;
   imagePath: string | null;
   active: boolean;
+  /** Opções de perfume/variante (ex: "Lavanda", "Flores Brancas") — produtos
+   * antigos podem não ter esse campo salvo no Firestore ainda. */
+  fragrances?: string[];
 }
 
 const COLLECTION = 'products';

@@ -8,7 +8,8 @@ interface AddItemModalProps {
   onClose: () => void;
   itemName: string;
   itemPrice: number;
-  onConfirm: (quantity: number, notes: string) => void;
+  fragrances?: string[];
+  onConfirm: (quantity: number, notes: string, fragrance?: string) => void;
 }
 
 export function AddItemModal({
@@ -16,21 +17,25 @@ export function AddItemModal({
   onClose,
   itemName,
   itemPrice,
+  fragrances = [],
   onConfirm,
 }: AddItemModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+  const [selectedFragrance, setSelectedFragrance] = useState<string | null>(null);
 
   const handleConfirm = () => {
-    onConfirm(quantity, notes);
+    onConfirm(quantity, notes, selectedFragrance ?? undefined);
     setQuantity(1);
     setNotes('');
+    setSelectedFragrance(null);
   };
 
   const handleClose = () => {
     onClose();
     setQuantity(1);
     setNotes('');
+    setSelectedFragrance(null);
   };
 
   return (
@@ -68,6 +73,32 @@ export function AddItemModal({
         </div>
       </div>
 
+      {fragrances.length > 0 && (
+        <div className="mb-6">
+          <label className="block mb-2 text-foreground">Perfume (opcional)</label>
+          <div className="flex flex-wrap gap-2">
+            {fragrances.map((fragrance) => {
+              const isSelected = selectedFragrance === fragrance;
+              return (
+                <button
+                  key={fragrance}
+                  type="button"
+                  onClick={() => setSelectedFragrance(isSelected ? null : fragrance)}
+                  aria-pressed={isSelected}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    isSelected
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-transparent text-foreground border-border hover:bg-muted'
+                  }`}
+                >
+                  {fragrance}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <label htmlFor="notes" className="block mb-2 text-foreground">
           Observações (opcional)
@@ -76,7 +107,6 @@ export function AddItemModal({
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Ex: embalagem específica, urgência..."
           className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           rows={3}
         />

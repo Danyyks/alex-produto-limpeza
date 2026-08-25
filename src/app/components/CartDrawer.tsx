@@ -11,6 +11,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   notes?: string;
+  fragrance?: string;
 }
 
 interface CartDrawerProps {
@@ -98,6 +99,11 @@ export function CartDrawer({
                           <p className="text-sm text-muted-foreground">
                             R$ {item.price.toFixed(2)} cada
                           </p>
+                          {item.fragrance && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              Perfume: {item.fragrance}
+                            </p>
+                          )}
                           {item.notes && (
                             <p className="text-sm text-muted-foreground mt-2 italic">
                               {item.notes}

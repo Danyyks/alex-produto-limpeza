@@ -22,6 +22,7 @@ function buildFallback(): ProductDoc[] {
     image: item.image ?? null,
     imagePath: null,
     active: item.active,
+    fragrances: item.fragrances ?? [],
   }));
 }
 

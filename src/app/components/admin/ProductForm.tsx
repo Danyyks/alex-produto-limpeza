@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Camera, ImagePlus, Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { Camera, ImagePlus, Loader2, Plus, X } from 'lucide-react';
 import { Button } from '../Button';
 import { Modal } from '../Modal';
 import { resizeImageFile } from '../../lib/imageResize';
@@ -19,6 +19,8 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [fragrances, setFragrances] = useState<string[]>([]);
+  const [fragranceInput, setFragranceInput] = useState('');
   const [active, setActive] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -32,11 +34,32 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
     setName(product?.name ?? '');
     setDescription(product?.description ?? '');
     setPrice(product ? String(product.price) : '');
+    setFragrances(product?.fragrances ?? []);
+    setFragranceInput('');
     setActive(product?.active ?? true);
     setFile(null);
     setPreviewUrl(null);
     setError(null);
   }, [isOpen, product]);
+
+  const addFragrance = () => {
+    const value = fragranceInput.trim();
+    if (!value) return;
+    const alreadyExists = fragrances.some((f) => f.toLowerCase() === value.toLowerCase());
+    if (!alreadyExists) setFragrances([...fragrances, value]);
+    setFragranceInput('');
+  };
+
+  const removeFragrance = (value: string) => {
+    setFragrances(fragrances.filter((f) => f !== value));
+  };
+
+  const handleFragranceInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addFragrance();
+    }
+  };
 
   useEffect(() => {
     if (!file) return;
@@ -75,6 +98,7 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
             name,
             description,
             price: priceNumber,
+            fragrances,
             active,
             image: uploaded.url,
             imagePath: uploaded.path,
@@ -85,19 +109,21 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
             name,
             description,
             price: priceNumber,
+            fragrances,
             active,
             image: uploaded.url,
             imagePath: uploaded.path,
           });
         }
       } else if (isEditing && product) {
-        await updateProduct(product.id, { name, description, price: priceNumber, active });
+        await updateProduct(product.id, { name, description, price: priceNumber, fragrances, active });
       } else {
         const id = newProductId();
         await createProduct(id, {
           name,
           description,
           price: priceNumber,
+          fragrances,
           active,
           image: null,
           imagePath: null,
@@ -159,6 +185,49 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
             onChange={(e) => setPrice(e.target.value)}
             className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
           />
+        </div>
+
+        <div>
+          <label htmlFor="product-fragrance-input" className="block mb-2 text-foreground">
+            Perfumes disponíveis <span className="text-muted-foreground font-normal">(opcional)</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="product-fragrance-input"
+              type="text"
+              placeholder="Ex: Lavanda"
+              value={fragranceInput}
+              onChange={(e) => setFragranceInput(e.target.value)}
+              onKeyDown={handleFragranceInputKeyDown}
+              className="flex-1 px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <Button type="button" variant="secondary" size="icon" onClick={addFragrance} aria-label="Adicionar perfume">
+              <Plus className="w-5 h-5" />
+            </Button>
+          </div>
+          {fragrances.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {fragrances.map((f) => (
+                <span
+                  key={f}
+                  className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-full bg-muted border border-border text-sm text-foreground"
+                >
+                  {f}
+                  <button
+                    type="button"
+                    onClick={() => removeFragrance(f)}
+                    aria-label={`Remover perfume ${f}`}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">
+            Se o produto tiver variações de perfume, o cliente escolhe uma na loja.
+          </p>
         </div>
 
         <div>

@@ -40,7 +40,8 @@ export function StorePage() {
     id: string;
     name: string;
     price: number;
-  }>({ isOpen: false, id: '', name: '', price: 0 });
+    fragrances: string[];
+  }>({ isOpen: false, id: '', name: '', price: 0, fragrances: [] });
 
   // ── Handlers do cliente ─────────────────────────────────────
   const handleLogout = () => {
@@ -50,17 +51,18 @@ export function StorePage() {
     logout();
   };
 
-  const openModal = (id: string, name: string, price: number) => {
-    setModalData({ isOpen: true, id, name, price });
+  const openModal = (id: string, name: string, price: number, fragrances: string[]) => {
+    setModalData({ isOpen: true, id, name, price, fragrances });
   };
 
   const closeModal = () => {
     setModalData((prev) => ({ ...prev, isOpen: false }));
   };
 
-  const handleAddToCart = (quantity: number, notes: string) => {
+  const handleAddToCart = (quantity: number, notes: string, fragrance?: string) => {
     const existingIndex = cartItems.findIndex(
-      (item) => item.productId === modalData.id && item.notes === notes,
+      (item) =>
+        item.productId === modalData.id && item.notes === notes && item.fragrance === fragrance,
     );
 
     if (existingIndex >= 0) {
@@ -81,6 +83,7 @@ export function StorePage() {
           price: modalData.price,
           quantity,
           notes,
+          fragrance,
         },
       ]);
     }
@@ -114,6 +117,7 @@ export function StorePage() {
 
     cartItems.forEach((item) => {
       message += `• ${item.name} (${item.quantity}x)`;
+      if (item.fragrance) message += ` - Perfume: ${item.fragrance}`;
       if (item.notes) message += ` - ${item.notes}`;
       message += '\n';
     });
@@ -278,7 +282,7 @@ export function StorePage() {
                   description={item.description}
                   price={item.price}
                   image={item.image ?? undefined}
-                  onAdd={() => openModal(item.id, item.name, item.price)}
+                  onAdd={() => openModal(item.id, item.name, item.price, item.fragrances ?? [])}
                 />
               </motion.div>
             ))}
@@ -306,6 +310,7 @@ export function StorePage() {
         onClose={closeModal}
         itemName={modalData.name}
         itemPrice={modalData.price}
+        fragrances={modalData.fragrances}
         onConfirm={handleAddToCart}
       />
 

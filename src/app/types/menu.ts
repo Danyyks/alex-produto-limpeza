@@ -5,4 +5,5 @@ export interface MenuItem {
   price: number;
   image?: string;
   active: boolean;
+  fragrances?: string[];
 }
