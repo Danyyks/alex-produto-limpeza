@@ -14,8 +14,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'RB Clean — Limpeza & Higiene',
-        short_name: 'RB Clean',
+        name: 'NA Clean — Distribuidora',
+        short_name: 'NA Clean',
         description: 'Catálogo online de produtos de limpeza. Monte seu pedido e envie direto pelo WhatsApp.',
         theme_color: '#4a63d6',
         background_color: '#f7f9fd',

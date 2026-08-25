@@ -4,7 +4,7 @@ Guia para sessões de IA (Claude Code ou similar) trabalhando neste repositório
 
 ## Visão geral
 
-"RB Clean" é uma SPA (React) de catálogo online com checkout via WhatsApp — sem servidor próprio, sem pagamento online; o "backend" é o Firebase (Firestore + Authentication), usado direto do client, mais o Cloudinary pro upload de foto de produto (Firebase Storage exige plano pago, não usado aqui). O cliente informa o nome, monta o carrinho e o app abre o WhatsApp da loja com o pedido pronto. O lojista gerencia os produtos (sem categorias — lista única, com busca por nome na loja) por um painel em `/admin` (Firebase Auth, separado do login do cliente) — ver [SDD.md](SDD.md) para detalhes técnicos de ambos os sistemas de sessão.
+"NA Clean Distribuidora" é uma SPA (React) de catálogo online com checkout via WhatsApp — sem servidor próprio, sem pagamento online; o "backend" é o Firebase (Firestore + Authentication), usado direto do client, mais o Cloudinary pro upload de foto de produto (Firebase Storage exige plano pago, não usado aqui). O cliente informa o nome, monta o carrinho e o app abre o WhatsApp da loja com o pedido pronto. O lojista gerencia os produtos (sem categorias — lista única, com busca por nome na loja) por um painel em `/admin` (Firebase Auth, separado do login do cliente) — ver [SDD.md](SDD.md) para detalhes técnicos de ambos os sistemas de sessão.
 
 **Em produção**: https://alex-produto-limpeza.vercel.app (deploy automático a cada push em `main`, via integração Git da Vercel).
 

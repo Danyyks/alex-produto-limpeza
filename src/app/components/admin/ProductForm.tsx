@@ -1,9 +1,10 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Camera, ImagePlus, Loader2 } from 'lucide-react';
 import { Button } from '../Button';
 import { Modal } from '../Modal';
 import { resizeImageFile } from '../../lib/imageResize';
 import { createProduct, newProductId, updateProduct, type ProductDoc } from '../../services/products';
-import { deleteProductImage, uploadProductImage } from '../../services/storage';
+import { deleteProductImage, isImageUploadConfigured, uploadProductImage } from '../../services/storage';
 
 interface ProductFormProps {
   isOpen: boolean;
@@ -22,7 +23,9 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -58,8 +61,14 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
 
       if (file) {
         const id = product?.id ?? newProductId();
-        const resized = await resizeImageFile(file);
-        const uploaded = await uploadProductImage(id, resized);
+        setIsUploadingImage(true);
+        let uploaded;
+        try {
+          const resized = await resizeImageFile(file);
+          uploaded = await uploadProductImage(id, resized);
+        } finally {
+          setIsUploadingImage(false);
+        }
 
         if (isEditing && product) {
           await updateProduct(product.id, {
@@ -115,6 +124,7 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
             id="product-name"
             type="text"
             required
+            placeholder="Ex: Detergente neutro 500ml"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
@@ -123,10 +133,11 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
 
         <div>
           <label htmlFor="product-description" className="block mb-2 text-foreground">
-            Descrição
+            Descrição <span className="text-muted-foreground font-normal">(opcional)</span>
           </label>
           <textarea
             id="product-description"
+            placeholder="Ex: Ideal para limpeza geral, rende até 3x mais"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
@@ -143,6 +154,7 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
             type="text"
             inputMode="decimal"
             required
+            placeholder="Ex: 12,90"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
@@ -150,23 +162,54 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
         </div>
 
         <div>
-          <label htmlFor="product-image" className="block mb-2 text-foreground">
-            Foto
-          </label>
+          <p className="block mb-2 text-foreground">
+            Foto <span className="text-muted-foreground font-normal">(opcional)</span>
+          </p>
           <input
-            id="product-image"
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="w-full text-sm text-muted-foreground"
+            className="hidden"
           />
-          {(previewUrl || product?.image) && (
-            <img
-              src={previewUrl ?? product?.image ?? ''}
-              alt="Pré-visualização"
-              className="mt-3 w-24 h-24 object-cover rounded-xl border border-border"
-            />
+          {isImageUploadConfigured ? (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label={previewUrl || product?.image ? 'Trocar foto do produto' : 'Adicionar foto do produto'}
+              className="relative w-32 h-32 rounded-2xl border-2 border-dashed border-border bg-muted overflow-hidden flex items-center justify-center hover:border-primary hover:bg-muted/70 transition-colors"
+            >
+              {previewUrl || product?.image ? (
+                <>
+                  <img
+                    src={previewUrl ?? product?.image ?? ''}
+                    alt="Pré-visualização da foto do produto"
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-black/60 text-white text-xs font-medium py-1.5">
+                    <Camera className="w-3.5 h-3.5" /> Trocar foto
+                  </span>
+                </>
+              ) : (
+                <span className="flex flex-col items-center gap-1.5 text-muted-foreground px-2 text-center">
+                  <ImagePlus className="w-7 h-7" />
+                  <span className="text-xs font-medium">Toque para adicionar foto</span>
+                </span>
+              )}
+              {isUploadingImage && (
+                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/60 text-white text-xs font-medium">
+                  <Loader2 className="w-5 h-5 animate-spin" /> Enviando foto…
+                </span>
+              )}
+            </button>
+          ) : (
+            <p className="text-sm text-muted-foreground border border-dashed border-border rounded-2xl px-4 py-3">
+              Upload de foto indisponível neste ambiente.
+            </p>
           )}
+          <p className="mt-2 text-xs text-muted-foreground">
+            JPG ou PNG • a imagem é redimensionada automaticamente.
+          </p>
         </div>
 
         <label className="flex items-center gap-2 text-foreground">
@@ -182,7 +225,7 @@ export function ProductForm({ isOpen, onClose, onSaved, product }: ProductFormPr
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Salvando…' : 'Salvar produto'}
+          {isUploadingImage ? 'Enviando foto…' : isSubmitting ? 'Salvando…' : 'Salvar produto'}
         </Button>
       </form>
     </Modal>

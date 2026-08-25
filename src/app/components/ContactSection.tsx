@@ -16,7 +16,7 @@ export function ContactSection() {
     // Navegação direta (sem nova aba): em PWA instalado no Android, abrir em
     // nova aba/janela falha por não existir "aba" pra abrir. Ver CLAUDE.md.
     window.location.href = buildWhatsappLink(
-      'Olá! Gostaria de saber mais sobre os produtos da RB Clean.',
+      'Olá! Gostaria de saber mais sobre os produtos da NA Clean.',
     );
   };
 

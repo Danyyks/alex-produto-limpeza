@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, Search, ShoppingCart, Sun, Moon, UserCog } from 'lucide-react';
+import { ChevronDown, LogOut, Search, ShoppingCart, Sun, Moon, UserCog } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { LoginScreen } from '../components/LoginScreen';
@@ -125,6 +125,10 @@ export function StorePage() {
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  const scrollToCatalog = () => {
+    document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   // ── Tela de login do cliente ────────────────────────────────
   if (!isLoggedIn) {
     return <LoginScreen onLogin={login} />;
@@ -207,28 +211,36 @@ export function StorePage() {
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col items-center bg-card border border-border rounded-3xl shadow-xl overflow-hidden p-6 md:p-10"
+          className="relative w-full md:max-w-md md:mx-auto aspect-[4/5] rounded-3xl overflow-hidden shadow-xl"
         >
-          <div className="w-full max-w-xs sm:max-w-sm rounded-2xl overflow-hidden aspect-[6/5] shadow-md">
-            <img
-              src={BRAND_BANNER_SRC}
-              alt="Produtos de limpeza RB Clean"
-              className="w-full h-full object-cover"
-              style={{ objectPosition: 'right center' }}
-            />
-          </div>
-          <div className="mt-6 text-center max-w-2xl">
-            <h2 className="text-2xl md:text-4xl font-semibold text-foreground leading-tight">
+          <img
+            src={BRAND_BANNER_SRC}
+            alt="Produtos de limpeza NA Clean"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-accent">
+              {BRAND_NAME}
+            </p>
+            <h2
+              className="mt-2 text-2xl md:text-3xl font-bold text-white leading-tight max-w-sm"
+              style={{ textShadow: '0 2px 16px rgba(0,0,0,0.35)' }}
+            >
               {BRAND_TEXT.heroHeadline}
             </h2>
-            <p className="mt-3 text-muted-foreground md:text-lg">
+            <p className="mt-2 text-sm md:text-base text-white/85">
               {BRAND_TEXT.heroSubtitle}
             </p>
+            <Button variant="hero" size="sm" onClick={scrollToCatalog} className="mt-4">
+              {BRAND_TEXT.heroCta}
+              <ChevronDown className="w-4 h-4" />
+            </Button>
           </div>
         </motion.div>
       </section>
 
-      <div className="sticky top-[81px] md:top-[89px] z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+      <div id="catalogo" className="sticky top-[81px] md:top-[89px] z-20 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />

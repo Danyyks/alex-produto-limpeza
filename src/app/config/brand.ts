@@ -3,18 +3,19 @@
  * Centraliza nome, subtítulo e textos usados em várias telas,
  * para facilitar trocar a identidade do site sem caçar strings espalhadas.
  */
-export const BRAND_NAME = 'RB Clean';
-export const BRAND_SUBTITLE = 'Limpeza & Higiene';
+export const BRAND_NAME = 'NA Clean';
+export const BRAND_SUBTITLE = 'Distribuidora';
 export const BRAND_FULL_NAME = `${BRAND_NAME} — ${BRAND_SUBTITLE}`;
 
-export const BRAND_LOGO_SRC = '/logo.png';
+export const BRAND_LOGO_SRC = '/logo.jpeg';
 export const BRAND_BANNER_SRC = '/banner.jpg';
 
 export const BRAND_TEXT = {
   loginWelcome: 'Bem-vindo à nossa loja online!',
   loginTagline: 'Tudo para deixar sua casa limpa, com praticidade e confiança.',
-  heroHeadline: 'Cuidando do seu ambiente com excelência, confiança e brilho',
+  heroHeadline: 'Limpeza que chega até você',
   heroSubtitle: 'Monte seu pedido e receba em casa',
+  heroCta: 'Ver produtos',
   sessionLogoutConfirm: 'Sair da loja? Isso vai limpar seu carrinho atual.',
 };
 

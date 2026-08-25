@@ -8,9 +8,9 @@ const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET as string | 
 
 /**
  * Prefixo fixo de pasta no Cloudinary — deliberadamente separado de BRAND_NAME
- * (que já mudou uma vez, Alex → RB Clean, e pode mudar de novo). Existe pra
- * manter os assets deste projeto isolados caso a mesma conta Cloudinary seja
- * reaproveitada por outro projeto no futuro — nunca mudar depois de definido,
+ * (que já mudou duas vezes, Alex → RB Clean → NA Clean, e pode mudar de novo).
+ * Existe pra manter os assets deste projeto isolados caso a mesma conta Cloudinary
+ * seja reaproveitada por outro projeto no futuro — nunca mudar depois de definido,
  * senão os uploads antigos ficam "perdidos" num prefixo diferente dos novos.
  */
 const PROJECT_FOLDER = 'rb-clean';

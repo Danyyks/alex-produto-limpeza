@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { ImagePlus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { ProductForm } from '../../components/admin/ProductForm';
 import { deleteProduct, getProducts, setProductActive, type ProductDoc } from '../../services/products';
@@ -77,9 +77,11 @@ export function AdminProductsPage() {
               key={product.id}
               className="flex items-center gap-4 bg-card border border-border rounded-2xl p-4"
             >
-              <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0">
-                {product.image && (
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                {product.image ? (
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                ) : (
+                  <ImagePlus className="w-5 h-5 text-muted-foreground" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
