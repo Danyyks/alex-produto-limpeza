@@ -22,14 +22,21 @@ export function useAdminAuth(): AdminAuthState {
   useEffect(() => {
     if (!isFirebaseConfigured) return;
 
+    let requestId = 0;
+
     const unsubscribe = subscribeToAuthState(async (user) => {
+      const currentRequestId = ++requestId;
+
       if (!user) {
         setState({ status: 'unauthenticated', user: null });
         return;
       }
       const admin = await isUserAdmin(user.uid);
+      if (currentRequestId !== requestId) return;
+
       if (!admin) {
         await logoutAdmin();
+        if (currentRequestId !== requestId) return;
         setState({ status: 'unauthenticated', user: null });
         return;
       }

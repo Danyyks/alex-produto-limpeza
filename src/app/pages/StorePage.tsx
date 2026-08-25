@@ -125,6 +125,9 @@ export function StorePage() {
     message += `\n*Total: R$ ${total.toFixed(2)}*`;
 
     window.location.href = buildWhatsappLink(message);
+
+    setCartItems([]);
+    setIsCartOpen(false);
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
