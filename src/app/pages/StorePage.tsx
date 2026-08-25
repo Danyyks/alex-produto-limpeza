@@ -207,7 +207,7 @@ export function StorePage() {
 
       {/* Saudação */}
       <p className="max-w-6xl mx-auto px-4 pt-4 text-sm text-muted-foreground">
-        Olá, {userName}
+        Olá, {userName}! Bem-vindo!
       </p>
 
       {/* Hero Section */}
