@@ -8,6 +8,7 @@ export interface CartItem {
   id: string;
   productId: string;
   name: string;
+  description?: string;
   price: number;
   quantity: number;
   notes?: string;
@@ -95,7 +96,12 @@ export function CartDrawer({
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <h4 className="mb-1">{item.name}</h4>
+                          <h4 className="mb-1 break-words">{item.name}</h4>
+                          {item.description && (
+                            <p className="text-sm text-muted-foreground break-words mb-1">
+                              {item.description}
+                            </p>
+                          )}
                           <p className="text-sm text-muted-foreground">
                             R$ {item.price.toFixed(2)} cada
                           </p>

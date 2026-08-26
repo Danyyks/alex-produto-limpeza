@@ -26,9 +26,9 @@ export function ProductCard({ name, description, price, image, onAdd }: ProductC
       </div>
 
       <div className="flex-1 min-w-0 flex flex-col py-1">
-        <h3 className="truncate">{name}</h3>
+        <h3 className="break-words">{name}</h3>
         {description && (
-          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-1 sm:line-clamp-2 mt-1">
+          <p className="text-muted-foreground text-sm leading-relaxed break-words mt-1">
             {description}
           </p>
         )}

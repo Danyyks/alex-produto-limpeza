@@ -39,9 +39,10 @@ export function StorePage() {
     isOpen: boolean;
     id: string;
     name: string;
+    description: string;
     price: number;
     fragrances: string[];
-  }>({ isOpen: false, id: '', name: '', price: 0, fragrances: [] });
+  }>({ isOpen: false, id: '', name: '', description: '', price: 0, fragrances: [] });
 
   // ── Handlers do cliente ─────────────────────────────────────
   const handleLogout = () => {
@@ -51,8 +52,14 @@ export function StorePage() {
     logout();
   };
 
-  const openModal = (id: string, name: string, price: number, fragrances: string[]) => {
-    setModalData({ isOpen: true, id, name, price, fragrances });
+  const openModal = (
+    id: string,
+    name: string,
+    description: string,
+    price: number,
+    fragrances: string[],
+  ) => {
+    setModalData({ isOpen: true, id, name, description, price, fragrances });
   };
 
   const closeModal = () => {
@@ -80,6 +87,7 @@ export function StorePage() {
           id: `${modalData.id}-${Date.now()}`,
           productId: modalData.id,
           name: modalData.name,
+          description: modalData.description,
           price: modalData.price,
           quantity,
           notes,
@@ -285,7 +293,9 @@ export function StorePage() {
                   description={item.description}
                   price={item.price}
                   image={item.image ?? undefined}
-                  onAdd={() => openModal(item.id, item.name, item.price, item.fragrances ?? [])}
+                  onAdd={() =>
+                    openModal(item.id, item.name, item.description ?? '', item.price, item.fragrances ?? [])
+                  }
                 />
               </motion.div>
             ))}
